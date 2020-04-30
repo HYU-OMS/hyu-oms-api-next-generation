@@ -1,0 +1,10 @@
+spring:
+  jpa:
+    show-sql: false
+
+server:
+  error:
+    include-exception: false
+    include-stacktrace: never
+    whitelabel:
+      enabled: true

@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.hyu_oms"
-version = "0.0.1-SNAPSHOT"
+version = "5.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 val developmentOnly by configurations.creating

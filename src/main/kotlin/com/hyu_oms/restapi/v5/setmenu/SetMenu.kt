@@ -1,7 +1,6 @@
 package com.hyu_oms.restapi.v5.setmenu
 
 import com.hyu_oms.restapi.v5.group.Group
-import com.hyu_oms.restapi.v5.menu.Menu
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime
@@ -20,7 +19,7 @@ data class SetMenu(
     var price: Long,
 
     @OneToMany
-    var contents: List<Menu> = listOf(),
+    var contents: List<SetMenuContent> = listOf(),
 
     @ManyToOne
     var group: Group,

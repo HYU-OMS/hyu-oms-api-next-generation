@@ -1,6 +1,6 @@
-package com.hyu_oms.restapi.v5.social_account
+package com.hyu_oms.restapi.v5.setmenu
 
-import com.hyu_oms.restapi.v5.user.User
+import com.hyu_oms.restapi.v5.menu.Menu
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime
@@ -8,18 +8,15 @@ import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
-data class SocialAccount(
+data class SetMenuContent(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
-    @ManyToOne
-    var user: User,
+    @OneToOne
+    var menu: Menu,
 
-    var accountType: SocialAccountType,
-
-    @Column(length = 127, nullable = false)
-    var accountId: String,
+    var amount: Int,
 
     @CreationTimestamp
     var createdAt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")),

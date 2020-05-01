@@ -9,6 +9,7 @@ import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
+@Table(name = "`queue`")
 data class Queue(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

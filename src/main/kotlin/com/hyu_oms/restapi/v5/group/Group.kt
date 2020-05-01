@@ -9,6 +9,7 @@ import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
+@Table(name = "`group`")
 data class Group(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

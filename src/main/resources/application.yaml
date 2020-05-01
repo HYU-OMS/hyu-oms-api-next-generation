@@ -1,6 +1,14 @@
 spring:
   jpa:
-    show-sql: false
+    show-sql: true
+    generate-ddl: true
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL57Dialect
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/hyu_oms_ng?characterEncoding=UTF-8&serverTimezone=UTC
+    username: INJECTED_THROUGH_ENV_VARIABLE
+    password: INJECTED_THROUGH_ENV_VARIABLE
 
 server:
   error:

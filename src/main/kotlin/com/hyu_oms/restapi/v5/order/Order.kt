@@ -10,6 +10,7 @@ import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
+@Table(name = "`order`")
 data class Order(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

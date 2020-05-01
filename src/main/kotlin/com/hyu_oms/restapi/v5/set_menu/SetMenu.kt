@@ -1,4 +1,4 @@
-package com.hyu_oms.restapi.v5.setmenu
+package com.hyu_oms.restapi.v5.set_menu
 
 import com.hyu_oms.restapi.v5.group.Group
 import org.hibernate.annotations.CreationTimestamp
@@ -8,6 +8,7 @@ import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
+@Table(name = "`set_menu`")
 data class SetMenu(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

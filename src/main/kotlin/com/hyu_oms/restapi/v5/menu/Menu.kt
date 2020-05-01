@@ -8,6 +8,7 @@ import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
+@Table(name = "`menu`")
 data class Menu(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -17,11 +17,8 @@ data class User(
     @Column(length = 127, nullable = false)
     var name: String,
 
-    @OneToMany
-    var linkedSocialAccounts: Set<SocialAccount> = setOf(),
-
     @Column(nullable = false)
-    var isEnabled: Boolean = false,
+    var isEnabled: Boolean = true,
 
     @CreationTimestamp
     var createdAt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")),

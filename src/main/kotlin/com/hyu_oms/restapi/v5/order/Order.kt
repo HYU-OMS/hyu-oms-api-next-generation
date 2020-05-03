@@ -1,7 +1,6 @@
 package com.hyu_oms.restapi.v5.order
 
 import com.hyu_oms.restapi.v5.group.Group
-import com.hyu_oms.restapi.v5.menu.Menu
 import com.hyu_oms.restapi.v5.user.User
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
@@ -26,9 +25,6 @@ data class Order(
     var destination: String,
 
     var totalPrice: Long,
-
-    @OneToMany
-    var orderItems: List<OrderItem>,
 
     var status: OrderStatus = OrderStatus.PD,
 

@@ -4,13 +4,13 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL57Dialect
     hibernate:
-      ddl-auto: validate # In production, set validate. Otherwise, set update for development purpose only.
-    generate-ddl: false # In production, set false. Otherwise, set true for development purpose only.
+      ddl-auto: ${JPA_DDL_AUTO:validate} # In production, set validate. Otherwise, set update for development purpose only.
+    generate-ddl: ${JPA_GENERATE_DDL:false} # In production, set false. Otherwise, set true for development purpose only.
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/hyu_oms_ng?characterEncoding=UTF-8&serverTimezone=UTC
-    username: INJECTED_THROUGH_ENV_VARIABLE
-    password: INJECTED_THROUGH_ENV_VARIABLE
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?characterEncoding=UTF-8&serverTimezone=UTC
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
     initialization-mode: never # In production, set never. Otherwise, set always for development purpose only.
 
 server:
@@ -19,3 +19,8 @@ server:
     include-stacktrace: never
     whitelabel:
       enabled: true
+
+social:
+  kakao:
+    rest-api-key: ${KAKAO_REST_API_KEY}
+    rest-api-secret: ${KAKAO_REST_API_SECRET}

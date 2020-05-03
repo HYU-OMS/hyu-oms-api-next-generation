@@ -1,6 +1,5 @@
 package com.hyu_oms.restapi.v5.group
 
-import com.hyu_oms.restapi.v5.member.Member
 import com.hyu_oms.restapi.v5.user.User
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
@@ -20,9 +19,6 @@ data class Group(
 
     @ManyToOne(optional = true)
     var creator: User? = null,
-
-    @OneToMany
-    var members: List<Member> = listOf(),
 
     @Column(nullable = false)
     var isEnabled: Boolean = true,

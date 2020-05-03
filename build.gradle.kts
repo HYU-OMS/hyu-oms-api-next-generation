@@ -30,7 +30,7 @@ dependencies {
   implementation(group = "org.modelmapper", name = "modelmapper", version = "2.3.0")
   annotationProcessor(group = "org.springframework.boot", name = "spring-boot-configuration-processor")
 //  implementation("org.springframework.boot:spring-boot-starter-security")
-//  implementation(group = "com.auth0", name = "java-jwt", version = "3.10.3")
+  implementation(group = "com.auth0", name = "java-jwt", version = "3.10.2")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")

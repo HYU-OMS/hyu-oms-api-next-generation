@@ -1,10 +1,16 @@
 package com.hyu_oms.restapi.v5.auth
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.JWTVerifier
+import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.JWTCreationException
+import com.auth0.jwt.exceptions.JWTVerificationException
+import com.auth0.jwt.interfaces.DecodedJWT
 import com.hyu_oms.restapi.v5.social_account.SocialAccount
 import com.hyu_oms.restapi.v5.social_account.SocialAccountRepository
 import com.hyu_oms.restapi.v5.social_account.SocialAccountType
 import com.hyu_oms.restapi.v5.user.User
-import com.hyu_oms.restapi.v5.user.UserService
+import com.hyu_oms.restapi.v5.user.UserRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.dao.EmptyResultDataAccessException
@@ -16,10 +22,11 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import java.net.URI
 import java.nio.charset.Charset
+import java.util.*
 
 @Service
 class AuthService(
-    private val userService: UserService,
+    private val userRepository: UserRepository,
     private val socialAccountRepository: SocialAccountRepository,
     restTemplateBuilder: RestTemplateBuilder
 ) {
@@ -30,6 +37,18 @@ class AuthService(
 
   @Value("\${social.kakao.rest-api-secret}")
   private lateinit var kakaoRestApiSecret: String
+
+  @Value("\${jwt.secret-key}")
+  private lateinit var jwtSecretKey: String
+
+  @Value("\${jwt.issuer}")
+  private lateinit var jwtIssuer: String
+
+  @Value("\${jwt.access-token.lifetime}")
+  private lateinit var jwtAccessTokenLifetime: String
+
+  @Value("\${jwt.refresh-token.lifetime}")
+  private lateinit var jwtRefreshTokenLifetime: String
 
   fun tokenInitialIssue(requestBody: AuthTokenInitialIssueRequestDto): AuthTokenResponseDto {
     val code = requestBody.code
@@ -42,7 +61,46 @@ class AuthService(
       else -> throw Exception() // TODO: configure appropriate exception
     }
 
-    return AuthTokenResponseDto()
+    val accessToken: String
+    val refreshToken: String
+    try {
+      val jwtAlgorithm: Algorithm = Algorithm.HMAC512(this.jwtSecretKey)
+
+      val currentDate = Date()
+      val calendar = Calendar.getInstance()
+
+      calendar.time = currentDate
+      calendar.add(Calendar.SECOND, jwtAccessTokenLifetime.toInt())
+      val accessTokenExpiredDate = calendar.time
+
+      calendar.time = currentDate
+      calendar.add(Calendar.SECOND, jwtRefreshTokenLifetime.toInt())
+      val refreshTokenExpiredDate = calendar.time
+
+      accessToken = JWT.create()
+          .withIssuedAt(currentDate)
+          .withNotBefore(currentDate)
+          .withExpiresAt(accessTokenExpiredDate)
+          .withJWTId(UUID.randomUUID().toString())
+          .withIssuer(this.jwtIssuer)
+          .withClaim("token_type", "access")
+          .withClaim("user_id", targetUser.id)
+          .sign(jwtAlgorithm)
+
+      refreshToken = JWT.create()
+          .withIssuedAt(currentDate)
+          .withNotBefore(currentDate)
+          .withExpiresAt(refreshTokenExpiredDate)
+          .withJWTId(UUID.randomUUID().toString())
+          .withIssuer(this.jwtIssuer)
+          .withClaim("token_type", "refresh")
+          .withClaim("user_id", targetUser.id)
+          .sign(jwtAlgorithm)
+    } catch(e: JWTCreationException) {
+      throw e
+    }
+
+    return AuthTokenResponseDto(accessToken, refreshToken)
   }
 
   private fun oauthWithKakao(code: String, redirectedUrl: String): User {
@@ -108,9 +166,8 @@ class AuthService(
       )
       targetUser = targetSocialAccount.user
     } catch(e: EmptyResultDataAccessException) {
-      val newUser: User = this.userService.addNewOne(
-          name = accountName
-      )
+      val newUser = User(name = accountName)
+      this.userRepository.save(newUser)
 
       val newSocialAccount = SocialAccount(
           user = newUser,
@@ -127,6 +184,38 @@ class AuthService(
 
   fun tokenRefresh(requestBody: AuthTokenRefreshRequestDto): AuthTokenResponseDto {
     val refreshToken = requestBody.refreshToken
-    return AuthTokenResponseDto()
+
+    val decodedJwt: DecodedJWT
+    val accessToken: String
+    try {
+      val jwtAlgorithm: Algorithm = Algorithm.HMAC512(this.jwtSecretKey)
+      val jwtVerifier: JWTVerifier = JWT.require(jwtAlgorithm).withIssuer(this.jwtIssuer).build()
+
+      decodedJwt = jwtVerifier.verify(refreshToken)
+      val userId = decodedJwt.getClaim("user_id").asInt()
+
+      val currentDate = Date()
+      val calendar = Calendar.getInstance()
+
+      calendar.time = currentDate
+      calendar.add(Calendar.SECOND, jwtAccessTokenLifetime.toInt())
+      val accessTokenExpiredDate = calendar.time
+
+      accessToken = JWT.create()
+          .withIssuedAt(currentDate)
+          .withNotBefore(currentDate)
+          .withExpiresAt(accessTokenExpiredDate)
+          .withJWTId(UUID.randomUUID().toString())
+          .withIssuer(this.jwtIssuer)
+          .withClaim("token_type", "access")
+          .withClaim("user_id", userId)
+          .sign(jwtAlgorithm)
+    } catch (e: JWTVerificationException) {
+      throw e
+    } catch (e: JWTCreationException) {
+      throw e
+    }
+
+    return AuthTokenResponseDto(accessToken, refreshToken)
   }
 }

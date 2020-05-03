@@ -24,3 +24,11 @@ social:
   kakao:
     rest-api-key: ${KAKAO_REST_API_KEY}
     rest-api-secret: ${KAKAO_REST_API_SECRET}
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  issuer: com.hyu-oms
+  access-token:
+    lifetime: ${JWT_ACCESS_TOKEN_DURATION:300}
+  refresh-token:
+    lifetime: ${JWT_REFRESH_TOKEN_DURATION:259200}

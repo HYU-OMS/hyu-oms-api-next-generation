@@ -183,7 +183,7 @@ class AuthService(
   }
 
   fun tokenRefresh(requestBody: AuthTokenRefreshRequestDto): AuthTokenResponseDto {
-    val refreshToken = requestBody.refreshToken
+    val refreshToken = requestBody.refresh
 
     val decodedJwt: DecodedJWT
     val accessToken: String

@@ -19,9 +19,6 @@ data class SetMenu(
 
     var price: Long,
 
-    @OneToMany
-    var contents: List<SetMenuContent> = listOf(),
-
     @ManyToOne
     var group: Group,
 

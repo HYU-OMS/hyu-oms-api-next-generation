@@ -8,7 +8,12 @@ import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
-@Table(name = "`social_account`")
+@Table(
+    name = "`social_account`",
+    uniqueConstraints = [UniqueConstraint(
+        columnNames = arrayOf("account_type", "account_id")
+    )]
+)
 data class SocialAccount(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,9 +22,10 @@ data class SocialAccount(
     @ManyToOne
     var user: User,
 
+    @Column(name = "account_type")
     var accountType: SocialAccountType,
 
-    @Column(length = 127, nullable = false)
+    @Column(length = 127, nullable = false, name = "account_id")
     var accountId: String,
 
     @CreationTimestamp

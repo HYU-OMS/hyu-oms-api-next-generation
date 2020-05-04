@@ -2,7 +2,6 @@ package com.hyu_oms.restapi.v5.controllers
 
 import com.auth0.jwt.exceptions.JWTCreationException
 import com.auth0.jwt.exceptions.JWTVerificationException
-import com.auth0.jwt.exceptions.TokenExpiredException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.hyu_oms.restapi.v5.dtos.AuthTokenInitialIssueRequestDto
 import com.hyu_oms.restapi.v5.dtos.AuthTokenRefreshRequestDto
@@ -64,8 +63,7 @@ class AuthController(
    */
   @ExceptionHandler(value = [
     JWTVerificationException::class,
-    JWTCreationException::class,
-    TokenExpiredException::class
+    JWTCreationException::class
   ])
   @ResponseStatus(code = HttpStatus.FORBIDDEN)
   fun jwtExceptionHandler(e: Exception): MutableMap<String, Any?> {

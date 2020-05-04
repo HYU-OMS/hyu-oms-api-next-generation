@@ -10,6 +10,7 @@ import com.hyu_oms.restapi.v5.entities.SocialAccount
 import com.hyu_oms.restapi.v5.repositories.SocialAccountRepository
 import com.hyu_oms.restapi.v5.enums.SocialAccountType
 import com.hyu_oms.restapi.v5.entities.User
+import com.hyu_oms.restapi.v5.exceptions.UnsupportedSocialMediaException
 import com.hyu_oms.restapi.v5.repositories.UserRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -58,7 +59,7 @@ class AuthService(
     val targetUser: User =
     when(requestBody.socialAccountType) {
       "kakao" -> this.oauthWithKakao(code!!, redirectedUrl!!)
-      else -> throw Exception() // TODO: configure appropriate exception
+      else -> throw UnsupportedSocialMediaException()
     }
 
     val jwtAlgorithm: Algorithm = Algorithm.HMAC512(this.jwtSecretKey)

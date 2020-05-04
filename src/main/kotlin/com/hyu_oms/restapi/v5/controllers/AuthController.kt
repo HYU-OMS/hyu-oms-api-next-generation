@@ -7,6 +7,7 @@ import com.hyu_oms.restapi.v5.services.AuthService
 import com.hyu_oms.restapi.v5.dtos.AuthTokenInitialIssueRequestDto
 import com.hyu_oms.restapi.v5.dtos.AuthTokenRefreshRequestDto
 import com.hyu_oms.restapi.v5.dtos.AuthTokenResponseDto
+import com.hyu_oms.restapi.v5.exceptions.UnsupportedSocialMediaException
 import com.hyu_oms.restapi.v5.responses.ClientError4XX
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -79,5 +80,11 @@ class AuthController(
       }
       else -> throw e
     }
+  }
+
+  @ExceptionHandler(value = [UnsupportedSocialMediaException::class])
+  @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+  fun unsupportedSocialMediaException(e: UnsupportedSocialMediaException): MutableMap<String, Any?> {
+    return ClientError4XX.UNSUPPORTED_SOCIAL_MEDIA_ERROR
   }
 }

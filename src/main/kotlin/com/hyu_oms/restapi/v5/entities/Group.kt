@@ -10,8 +10,8 @@ import javax.persistence.*
 @Table(
     name = "`group`",
     indexes = [
-        Index(columnList = "enabled"),
-        Index(columnList = "allow_register")
+      Index(columnList = "enabled"),
+      Index(columnList = "allow_register")
     ]
 )
 data class Group(

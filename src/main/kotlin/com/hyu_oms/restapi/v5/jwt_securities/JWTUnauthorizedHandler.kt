@@ -8,7 +8,7 @@ import org.springframework.security.web.AuthenticationEntryPoint
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class JWTUnauthorizedHandler: AuthenticationEntryPoint {
+class JWTUnauthorizedHandler : AuthenticationEntryPoint {
   private val objectMapper: ObjectMapper = ObjectMapper() // string to json 을 하기 위한 놈.
 
   override fun commence(

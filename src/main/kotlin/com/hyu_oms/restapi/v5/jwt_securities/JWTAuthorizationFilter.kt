@@ -21,7 +21,7 @@ class JWTAuthorizationFilter(
     authManager: AuthenticationManager,
     private val jwtSecretKey: String,
     private val jwtIssuer: String
-): BasicAuthenticationFilter(authManager) {
+) : BasicAuthenticationFilter(authManager) {
   private val objectMapper: ObjectMapper = ObjectMapper() // string to json 을 하기 위한 놈.
 
   override fun doFilterInternal(
@@ -31,7 +31,7 @@ class JWTAuthorizationFilter(
   ) {
     try {
       val header: String? = request.getHeader("Authorization")
-      if(header != null && header.startsWith("Bearer")) {
+      if (header != null && header.startsWith("Bearer")) {
         val accessToken = header.replace("Bearer", "").replace(" ", "")
 
         val jwtAlgorithm: Algorithm = Algorithm.HMAC512(this.jwtSecretKey)
@@ -39,7 +39,7 @@ class JWTAuthorizationFilter(
 
         val decodedJwt = jwtVerifier.verify(accessToken)
         val tokenType = decodedJwt.getClaim("token_type").asString()
-        if(tokenType != "access") {
+        if (tokenType != "access") {
           throw JWTVerificationException("Provided token is not 'access_token'.")
         }
 
@@ -50,11 +50,11 @@ class JWTAuthorizationFilter(
             arrayListOf()
         )
       }
-    } catch(e: Exception) {
+    } catch (e: Exception) {
       val responseBody: MutableMap<String, Any?>
       val statusCode: HttpStatus
 
-      when(e) {
+      when (e) {
         is JWTVerificationException -> {
           responseBody = ClientError4XX.JWT_VERIFICATION_ERROR
           responseBody["data"] = mutableMapOf("message" to e.message)

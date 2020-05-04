@@ -11,7 +11,7 @@ import javax.persistence.*
 @Table(
     name = "`social_account`",
     uniqueConstraints = [
-        UniqueConstraint(columnNames = arrayOf("account_type", "account_id"))
+      UniqueConstraint(columnNames = arrayOf("account_type", "account_id"))
     ]
 )
 data class SocialAccount(

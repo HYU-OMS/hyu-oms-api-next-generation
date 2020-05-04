@@ -1,6 +1,5 @@
 package com.hyu_oms.restapi.v5.entities
 
-import com.hyu_oms.restapi.v5.entities.Group
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime

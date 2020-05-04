@@ -8,15 +8,18 @@ import com.hyu_oms.restapi.v5.dtos.AuthTokenInitialIssueRequestDto
 import com.hyu_oms.restapi.v5.dtos.AuthTokenRefreshRequestDto
 import com.hyu_oms.restapi.v5.dtos.AuthTokenResponseDto
 import com.hyu_oms.restapi.v5.entities.SocialAccount
-import com.hyu_oms.restapi.v5.repositories.SocialAccountRepository
-import com.hyu_oms.restapi.v5.enums.SocialAccountType
 import com.hyu_oms.restapi.v5.entities.User
+import com.hyu_oms.restapi.v5.enums.SocialAccountType
 import com.hyu_oms.restapi.v5.exceptions.UnsupportedSocialMediaException
+import com.hyu_oms.restapi.v5.repositories.SocialAccountRepository
 import com.hyu_oms.restapi.v5.repositories.UserRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.dao.EmptyResultDataAccessException
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.LinkedMultiValueMap
@@ -58,10 +61,10 @@ class AuthService(
 
     // TODO: facebook 로그인 추가
     val targetUser: User =
-    when(requestBody.socialAccountType) {
-      "kakao" -> this.oauthWithKakao(code!!, redirectedUrl!!)
-      else -> throw UnsupportedSocialMediaException()
-    }
+        when (requestBody.socialAccountType) {
+          "kakao" -> this.oauthWithKakao(code!!, redirectedUrl!!)
+          else -> throw UnsupportedSocialMediaException()
+        }
 
     val jwtAlgorithm: Algorithm = Algorithm.HMAC512(this.jwtSecretKey)
 
@@ -114,7 +117,7 @@ class AuthService(
     headersForOauth.contentType = MediaType.APPLICATION_FORM_URLENCODED
     headersForOauth.acceptCharset = listOf(Charset.forName("utf-8"))
 
-    val requestForOauth = HttpEntity< MultiValueMap<String, String> >(bodyForOauth, headersForOauth)
+    val requestForOauth = HttpEntity<MultiValueMap<String, String>>(bodyForOauth, headersForOauth)
 
     val oauthResponse = this.restTemplate.exchange(urlForOauth, HttpMethod.POST, requestForOauth, Map::class.java)
     val oauthResponseBody = oauthResponse.body!!
@@ -141,7 +144,7 @@ class AuthService(
       )
 
       targetUser = targetSocialAccount.user
-    } catch(e: EmptyResultDataAccessException) {
+    } catch (e: EmptyResultDataAccessException) {
       val newUser = User(name = accountName)
       this.userRepository.save(newUser)
 
@@ -166,7 +169,7 @@ class AuthService(
 
     val decodedJwt = jwtVerifier.verify(refreshToken)
     val tokenType = decodedJwt.getClaim("token_type").asString()
-    if(tokenType != "refresh") {
+    if (tokenType != "refresh") {
       throw JWTVerificationException("Provided token is not 'refresh_token'.")
     }
 

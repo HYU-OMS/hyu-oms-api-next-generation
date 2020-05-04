@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy
 
 @EnableWebSecurity
-class JWTWebSecurity: WebSecurityConfigurerAdapter() {
+class JWTWebSecurity : WebSecurityConfigurerAdapter() {
   @Value("\${jwt.secret-key}")
   private lateinit var jwtSecretKey: String
 

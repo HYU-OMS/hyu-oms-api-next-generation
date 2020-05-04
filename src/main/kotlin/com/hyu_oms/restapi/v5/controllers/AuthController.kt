@@ -4,12 +4,12 @@ import com.auth0.jwt.exceptions.JWTCreationException
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.exceptions.TokenExpiredException
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.hyu_oms.restapi.v5.services.AuthService
 import com.hyu_oms.restapi.v5.dtos.AuthTokenInitialIssueRequestDto
 import com.hyu_oms.restapi.v5.dtos.AuthTokenRefreshRequestDto
 import com.hyu_oms.restapi.v5.dtos.AuthTokenResponseDto
 import com.hyu_oms.restapi.v5.exceptions.UnsupportedSocialMediaException
 import com.hyu_oms.restapi.v5.responses.ClientError4XX
+import com.hyu_oms.restapi.v5.services.AuthService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -44,14 +44,13 @@ class AuthController(
    * @return ClientError4XX.REST_CLIENT_ERROR with status code and message from external API server.
    */
   @ExceptionHandler(value = [HttpClientErrorException::class])
-  fun httpClientErrorExceptionHandler(e: HttpClientErrorException): ResponseEntity< MutableMap<String, Any?> > {
+  fun httpClientErrorExceptionHandler(e: HttpClientErrorException): ResponseEntity<MutableMap<String, Any?>> {
     val statusCode = e.statusCode
     val responseBody = ClientError4XX.REST_CLIENT_ERROR
     responseBody["data"] =
-        if(e.responseBodyAsString.isNotEmpty()) {
+        if (e.responseBodyAsString.isNotEmpty()) {
           this.objectMapper.readValue(e.responseBodyAsString, MutableMap::class.java)
-        }
-        else {
+        } else {
           null
         }
 
@@ -70,7 +69,7 @@ class AuthController(
   ])
   @ResponseStatus(code = HttpStatus.FORBIDDEN)
   fun jwtExceptionHandler(e: Exception): MutableMap<String, Any?> {
-    return when(e) {
+    return when (e) {
       is JWTCreationException -> {
         val responseBody = ClientError4XX.JWT_CREATION_ERROR
         responseBody["data"] = mutableMapOf("message" to e.message)

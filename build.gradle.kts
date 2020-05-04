@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.hyu_oms"
-version = "0.0.1-SNAPSHOT"
+version = "5.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 val developmentOnly by configurations.creating
@@ -26,10 +26,11 @@ repositories {
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-web")
-  implementation("com.h2database:h2")
+  implementation("mysql:mysql-connector-java")
   implementation(group = "org.modelmapper", name = "modelmapper", version = "2.3.0")
+  annotationProcessor(group = "org.springframework.boot", name = "spring-boot-configuration-processor")
 //  implementation("org.springframework.boot:spring-boot-starter-security")
-//  implementation(group = "com.auth0", name = "java-jwt", version = "3.10.3")
+  implementation(group = "com.auth0", name = "java-jwt", version = "3.10.2")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")

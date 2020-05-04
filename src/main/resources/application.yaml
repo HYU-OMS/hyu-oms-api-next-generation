@@ -1,6 +1,17 @@
 spring:
   jpa:
     show-sql: false
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL57Dialect
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate} # In production, set validate. Otherwise, set update for development purpose only.
+    generate-ddl: ${JPA_GENERATE_DDL:false} # In production, set false. Otherwise, set true for development purpose only.
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?characterEncoding=UTF-8&serverTimezone=UTC
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    initialization-mode: never # In production, set never. Otherwise, set always for development purpose only.
 
 server:
   error:
@@ -8,3 +19,16 @@ server:
     include-stacktrace: never
     whitelabel:
       enabled: true
+
+social:
+  kakao:
+    rest-api-key: ${KAKAO_REST_API_KEY}
+    rest-api-secret: ${KAKAO_REST_API_SECRET}
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  issuer: com.hyu-oms
+  access-token:
+    lifetime: ${JWT_ACCESS_TOKEN_DURATION:300}
+  refresh-token:
+    lifetime: ${JWT_REFRESH_TOKEN_DURATION:259200}

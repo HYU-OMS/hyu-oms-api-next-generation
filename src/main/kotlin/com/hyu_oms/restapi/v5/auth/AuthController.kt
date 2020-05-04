@@ -15,8 +15,7 @@ import javax.validation.Valid
 class AuthController(
     private val authService: AuthService
 ) {
-  // string to json 을 하기 위한 놈.
-  private val objectMapper: ObjectMapper = ObjectMapper()
+  private val objectMapper: ObjectMapper = ObjectMapper() // string to json 을 하기 위한 놈.
 
   @PostMapping("/initial")
   @ResponseStatus(code = HttpStatus.CREATED)
@@ -33,7 +32,11 @@ class AuthController(
     return this.authService.tokenRefresh(requestBody = requestBody)
   }
 
-  // 외부 API 요청 (소셜계정 로그인) 오류 발생 시 여기로 넘어옴.
+  /**
+   * 외부 API 요청 (소셜계정 로그인) 오류 발생 시 여기로 넘어옴.
+   *
+   * @return ClientError4XX.REST_CLIENT_ERROR with status code and message from external API server.
+   */
   @ExceptionHandler(value = [HttpClientErrorException::class])
   fun httpClientErrorExceptionHandler(e: HttpClientErrorException): ResponseEntity< MutableMap<String, Any?> > {
     val statusCode = e.statusCode
@@ -49,22 +52,26 @@ class AuthController(
     return ResponseEntity(responseBody, statusCode)
   }
 
+  /**
+   * JWT initial issue, refresh issue 관련 exception 대응.
+   *
+   * @return ClientError4XX.JWT_CREATION_ERROR or ClientError4XX.JWT_VERIFICATION_ERROR with status code 403.
+   */
   @ExceptionHandler(value = [JWTVerificationException::class, JWTCreationException::class])
-  fun jwtExceptionHandler(e: Exception): ResponseEntity< MutableMap<String, Any?> > {
+  @ResponseStatus(code = HttpStatus.FORBIDDEN)
+  fun jwtExceptionHandler(e: Exception): MutableMap<String, Any?> {
     return when(e) {
       is JWTCreationException -> {
-        val statusCode = HttpStatus.FORBIDDEN
         val responseBody = ClientError4XX.JWT_CREATION_ERROR
         responseBody["data"] = mutableMapOf("message" to e.message)
 
-        ResponseEntity(responseBody, statusCode)
+        responseBody
       }
       is JWTVerificationException -> {
-        val statusCode = HttpStatus.FORBIDDEN
         val responseBody = ClientError4XX.JWT_VERIFICATION_ERROR
         responseBody["data"] = mutableMapOf("message" to e.message)
 
-        ResponseEntity(responseBody, statusCode)
+        responseBody
       }
       else -> throw e
     }

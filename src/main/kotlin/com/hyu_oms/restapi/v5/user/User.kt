@@ -1,6 +1,5 @@
 package com.hyu_oms.restapi.v5.user
 
-import com.hyu_oms.restapi.v5.social_account.SocialAccount
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime

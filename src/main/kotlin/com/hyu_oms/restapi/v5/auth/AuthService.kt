@@ -13,6 +13,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.http.*
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
@@ -93,7 +94,8 @@ class AuthService(
     return AuthTokenResponseDto(accessToken, refreshToken)
   }
 
-  private fun oauthWithKakao(code: String, redirectedUrl: String): User {
+  @Transactional
+  fun oauthWithKakao(code: String, redirectedUrl: String): User {
     val urlForOauth = URI("https://kauth.kakao.com/oauth/token")
 
     val bodyForOauth: MultiValueMap<String, String> = LinkedMultiValueMap()

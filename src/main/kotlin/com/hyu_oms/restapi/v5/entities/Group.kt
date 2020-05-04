@@ -7,7 +7,13 @@ import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
-@Table(name = "`group`")
+@Table(
+    name = "`group`",
+    indexes = [
+        Index(columnList = "enabled"),
+        Index(columnList = "allow_register")
+    ]
+)
 data class Group(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,10 +25,10 @@ data class Group(
     @ManyToOne(optional = true)
     var creator: User? = null,
 
-    @Column(nullable = false)
-    var isEnabled: Boolean = true,
+    @Column(name = "enabled", nullable = false)
+    var enabled: Boolean = true,
 
-    @Column(nullable = false)
+    @Column(name = "allow_register", nullable = false)
     var allowRegister: Boolean = false,
 
     @CreationTimestamp

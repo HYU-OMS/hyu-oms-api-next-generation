@@ -19,8 +19,10 @@ data class Member(
     @ManyToOne
     var group: Group,
 
-    var isEnabled: Boolean = false,
-    var isAdmin: Boolean = false,
+    var enabled: Boolean = false,
+
+    @Column(name = "has_admin_permission")
+    var hasAdminPermission: Boolean = false,
 
     @CreationTimestamp
     var createdAt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")),

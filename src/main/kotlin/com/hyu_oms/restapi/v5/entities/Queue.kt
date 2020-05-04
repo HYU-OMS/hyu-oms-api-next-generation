@@ -26,7 +26,7 @@ data class Queue(
 
     var amount: Int,
 
-    var isDelivered: Boolean = false,
+    var delivered: Boolean = false,
 
     @CreationTimestamp
     var createdAt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")),

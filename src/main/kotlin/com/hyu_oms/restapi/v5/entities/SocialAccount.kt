@@ -10,9 +10,9 @@ import javax.persistence.*
 @Entity
 @Table(
     name = "`social_account`",
-    uniqueConstraints = [UniqueConstraint(
-        columnNames = arrayOf("account_type", "account_id")
-    )]
+    uniqueConstraints = [
+        UniqueConstraint(columnNames = arrayOf("account_type", "account_id"))
+    ]
 )
 data class SocialAccount(
     @Id

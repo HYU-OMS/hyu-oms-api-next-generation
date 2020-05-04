@@ -17,7 +17,7 @@ data class User(
     var name: String,
 
     @Column(nullable = false)
-    var isEnabled: Boolean = true,
+    var enabled: Boolean = true,
 
     @CreationTimestamp
     var createdAt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")),

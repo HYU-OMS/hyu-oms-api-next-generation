@@ -2,6 +2,7 @@ package com.hyu_oms.restapi.v5.controllers
 
 import com.auth0.jwt.exceptions.JWTCreationException
 import com.auth0.jwt.exceptions.JWTVerificationException
+import com.auth0.jwt.exceptions.TokenExpiredException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.hyu_oms.restapi.v5.services.AuthService
 import com.hyu_oms.restapi.v5.dtos.AuthTokenInitialIssueRequestDto
@@ -62,7 +63,11 @@ class AuthController(
    *
    * @return ClientError4XX.JWT_CREATION_ERROR or ClientError4XX.JWT_VERIFICATION_ERROR with status code 403.
    */
-  @ExceptionHandler(value = [JWTVerificationException::class, JWTCreationException::class])
+  @ExceptionHandler(value = [
+    JWTVerificationException::class,
+    JWTCreationException::class,
+    TokenExpiredException::class
+  ])
   @ResponseStatus(code = HttpStatus.FORBIDDEN)
   fun jwtExceptionHandler(e: Exception): MutableMap<String, Any?> {
     return when(e) {
@@ -74,6 +79,12 @@ class AuthController(
       }
       is JWTVerificationException -> {
         val responseBody = ClientError4XX.JWT_VERIFICATION_ERROR
+        responseBody["data"] = mutableMapOf("message" to e.message)
+
+        responseBody
+      }
+      is TokenExpiredException -> {
+        val responseBody = ClientError4XX.JWT_EXPIRED_ERROR
         responseBody["data"] = mutableMapOf("message" to e.message)
 
         responseBody

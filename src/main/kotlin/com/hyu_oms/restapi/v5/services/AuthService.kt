@@ -3,6 +3,7 @@ package com.hyu_oms.restapi.v5.services
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.JWTVerificationException
 import com.hyu_oms.restapi.v5.dtos.AuthTokenInitialIssueRequestDto
 import com.hyu_oms.restapi.v5.dtos.AuthTokenRefreshRequestDto
 import com.hyu_oms.restapi.v5.dtos.AuthTokenResponseDto
@@ -164,6 +165,11 @@ class AuthService(
     val jwtVerifier: JWTVerifier = JWT.require(jwtAlgorithm).withIssuer(this.jwtIssuer).build()
 
     val decodedJwt = jwtVerifier.verify(refreshToken)
+    val tokenType = decodedJwt.getClaim("token_type").asString()
+    if(tokenType != "refresh") {
+      throw JWTVerificationException("Provided token is not 'refresh_token'.")
+    }
+
     val userId = decodedJwt.getClaim("user_id").asInt()
 
     val currentDate = Date()

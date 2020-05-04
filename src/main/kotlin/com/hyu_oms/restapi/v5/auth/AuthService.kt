@@ -111,25 +111,16 @@ class AuthService(
     bodyForOauth.add("client_id", this.kakaoRestApiKey)
     bodyForOauth.add("redirect_uri", redirectedUrl)
     bodyForOauth.add("code", code)
-    bodyForOauth.add("client_secret", this.kakaoRestApiSecret)
+    bodyForOauth.add("client_secret", this.kakaoRestApiSecret) // 이거 빼먹으면 401 응답인데 body 가 텅 비어있음.
 
     val headersForOauth = HttpHeaders()
     headersForOauth.contentType = MediaType.APPLICATION_FORM_URLENCODED
     headersForOauth.acceptCharset = listOf(Charset.forName("utf-8"))
 
     val requestForOauth = HttpEntity< MultiValueMap<String, String> >(bodyForOauth, headersForOauth)
-    val tt = requestForOauth.body
-    val t = tt.toString()
 
-    val oauthResponseEntity: ResponseEntity< Map<*, *> >
-    try {
-      oauthResponseEntity = this.restTemplate.exchange(urlForOauth, HttpMethod.POST, requestForOauth, Map::class.java)
-    } catch(e: HttpClientErrorException) {
-      val stop = 0
-      throw e
-    }
-
-    val oauthResponseBody = oauthResponseEntity.body!!
+    val oauthResponse = this.restTemplate.exchange(urlForOauth, HttpMethod.POST, requestForOauth, Map::class.java)
+    val oauthResponseBody = oauthResponse.body!!
 
     val kakaoRestApiAccessToken: String = oauthResponseBody["access_token"].toString()
 
@@ -139,24 +130,11 @@ class AuthService(
 
     val httpEntityForUserInfo = HttpEntity(null, headersForUserInfo)
 
-    val userInfoResponse: ResponseEntity< Map<*, *> >
-    try {
-      userInfoResponse = this.restTemplate.exchange(urlForUserInfo, HttpMethod.GET, httpEntityForUserInfo, Map::class.java)
-    } catch(e: HttpClientErrorException) {
-      val stop = 0
-      throw e
-    }
-
+    val userInfoResponse = this.restTemplate.exchange(urlForUserInfo, HttpMethod.GET, httpEntityForUserInfo, Map::class.java)
     val userInfoResponseBody = userInfoResponse.body!!
 
     val accountId: String = userInfoResponseBody["id"].toString()
     val accountName: String = (userInfoResponseBody["properties"] as Map<*, *>)["nickname"].toString()
-//    if(userInfoResponse.statusCode == HttpStatus.OK) {
-//
-//    }
-//    else {
-//      throw Exception()
-//    }
 
     var targetUser: User
     try {

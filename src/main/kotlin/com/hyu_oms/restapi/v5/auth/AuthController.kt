@@ -48,4 +48,25 @@ class AuthController(
 
     return ResponseEntity(responseBody, statusCode)
   }
+
+  @ExceptionHandler(value = [JWTVerificationException::class, JWTCreationException::class])
+  fun jwtExceptionHandler(e: Exception): ResponseEntity< MutableMap<String, Any?> > {
+    return when(e) {
+      is JWTCreationException -> {
+        val statusCode = HttpStatus.FORBIDDEN
+        val responseBody = ClientError4XX.JWT_CREATION_ERROR
+        responseBody["data"] = mutableMapOf("message" to e.message)
+
+        ResponseEntity(responseBody, statusCode)
+      }
+      is JWTVerificationException -> {
+        val statusCode = HttpStatus.FORBIDDEN
+        val responseBody = ClientError4XX.JWT_VERIFICATION_ERROR
+        responseBody["data"] = mutableMapOf("message" to e.message)
+
+        ResponseEntity(responseBody, statusCode)
+      }
+      else -> throw e
+    }
+  }
 }

@@ -14,9 +14,11 @@ data class Member(
     var id: Long? = null,
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     var user: User,
 
     @ManyToOne
+    @JoinColumn(name = "group_id")
     var group: Group,
 
     var enabled: Boolean = false,

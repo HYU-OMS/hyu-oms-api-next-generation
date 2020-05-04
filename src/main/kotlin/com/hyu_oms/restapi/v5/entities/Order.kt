@@ -15,9 +15,11 @@ data class Order(
     var id: Long? = null,
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     var user: User,
 
     @ManyToOne
+    @JoinColumn(name = "group_id")
     var group: Group,
 
     @Column(length = 127, nullable = false)

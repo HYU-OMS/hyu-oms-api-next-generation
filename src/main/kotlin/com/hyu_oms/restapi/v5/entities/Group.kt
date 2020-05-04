@@ -25,6 +25,9 @@ data class Group(
     @ManyToOne(optional = true)
     var creator: User? = null,
 
+    @OneToMany(mappedBy = "group")
+    var members: List<Member> = listOf(),
+
     @Column(name = "enabled", nullable = false)
     var enabled: Boolean = true,
 

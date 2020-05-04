@@ -20,6 +20,7 @@ data class Menu(
     var price: Long,
 
     @ManyToOne
+    @JoinColumn(name = "group_id")
     var group: Group,
 
     var enabled: Boolean = true,

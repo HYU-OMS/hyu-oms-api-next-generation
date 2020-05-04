@@ -20,6 +20,7 @@ data class SocialAccount(
     var id: Long? = null,
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     var user: User,
 
     @Column(name = "account_type")

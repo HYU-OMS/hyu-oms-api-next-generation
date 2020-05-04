@@ -82,12 +82,6 @@ class AuthController(
 
         responseBody
       }
-      is TokenExpiredException -> {
-        val responseBody = ClientError4XX.JWT_EXPIRED_ERROR
-        responseBody["data"] = mutableMapOf("message" to e.message)
-
-        responseBody
-      }
       else -> throw e
     }
   }

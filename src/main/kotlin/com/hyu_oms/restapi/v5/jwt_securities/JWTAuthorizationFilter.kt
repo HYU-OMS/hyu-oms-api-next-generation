@@ -60,11 +60,6 @@ class JWTAuthorizationFilter(
           responseBody["data"] = mutableMapOf("message" to e.message)
           statusCode = HttpStatus.FORBIDDEN
         }
-        is TokenExpiredException -> {
-          responseBody = ClientError4XX.JWT_EXPIRED_ERROR
-          responseBody["data"] = mutableMapOf("message" to e.message)
-          statusCode = HttpStatus.FORBIDDEN
-        }
         else -> {
           responseBody = ServerError5XX.INTERNAL_SERVER_ERROR
           responseBody["data"] = mutableMapOf("message" to e.message)

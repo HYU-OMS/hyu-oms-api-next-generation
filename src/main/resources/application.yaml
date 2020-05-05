@@ -1,6 +1,6 @@
 spring:
   jpa:
-    show-sql: false
+    show-sql: ${JPA_SHOW_SQL:false}
     database: mysql
     database-platform: org.hibernate.dialect.MySQL57Dialect
     hibernate:
@@ -29,6 +29,6 @@ jwt:
   secret-key: ${JWT_SECRET_KEY}
   issuer: com.hyu-oms
   access-token:
-    lifetime: ${JWT_ACCESS_TOKEN_DURATION:300}
+    lifetime: ${JWT_ACCESS_TOKEN_DURATION:3600}
   refresh-token:
     lifetime: ${JWT_REFRESH_TOKEN_DURATION:259200}

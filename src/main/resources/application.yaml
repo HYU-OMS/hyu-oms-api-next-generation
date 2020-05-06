@@ -6,6 +6,7 @@ spring:
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:validate} # In production, set validate. Otherwise, set update for development purpose only.
     generate-ddl: ${JPA_GENERATE_DDL:false} # In production, set false. Otherwise, set true for development purpose only.
+    open-in-view: false
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?characterEncoding=UTF-8&serverTimezone=UTC

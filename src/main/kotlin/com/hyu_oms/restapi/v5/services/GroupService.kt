@@ -3,7 +3,6 @@ package com.hyu_oms.restapi.v5.services
 import com.hyu_oms.restapi.v5.dtos.GroupListItemDto
 import com.hyu_oms.restapi.v5.dtos.GroupListResponseDto
 import com.hyu_oms.restapi.v5.entities.Group
-import com.hyu_oms.restapi.v5.entities.User
 import com.hyu_oms.restapi.v5.exceptions.UserNotFoundException
 import com.hyu_oms.restapi.v5.repositories.GroupRepository
 import com.hyu_oms.restapi.v5.repositories.MemberRepository
@@ -27,11 +26,11 @@ class GroupService(
     val pageRequest = PageRequest.of(page, size)
     val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
 
-    val user: User = this.userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
-    val members = this.memberRepository.findByUser(user)
+    val user = this.userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
+    val members = this.memberRepository.findAllByUserUsingJoinFetch(user)
 
-    val groupPages = this.groupRepository.findByEnabledIsTrueAndMembersInOrderByIdAsc(members, pageRequest)
-    val groupCount = this.groupRepository.countByEnabledIsTrueAndMembersIn(members)
+    val groupPages = this.groupRepository.findDistinctByEnabledIsTrueAndMembersInOrderByIdAsc(members, pageRequest)
+    val groupCount = this.groupRepository.countDistinctByEnabledIsTrueAndMembersIn(members)
 
     val groupList = groupPages.stream()
         .map { group: Group ->
@@ -49,11 +48,11 @@ class GroupService(
     val pageRequest = PageRequest.of(page, size)
     val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
 
-    val user: User = this.userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
-    val members = this.memberRepository.findByUser(user)
+    val user = this.userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
+    val members = this.memberRepository.findAllByUserUsingJoinFetch(user)
 
-    val groupPages = this.groupRepository.findByEnabledIsTrueAndAllowRegisterIsTrueAndMembersNotInOrderByIdAsc(members, pageRequest)
-    val groupCount = this.groupRepository.countByEnabledIsTrueAndAllowRegisterIsTrueAndMembersNotIn(members)
+    val groupPages = this.groupRepository.findDistinctByEnabledIsTrueAndAllowRegisterIsTrueAndMembersNotInOrderByIdAsc(members, pageRequest)
+    val groupCount = this.groupRepository.countDistinctByEnabledIsTrueAndAllowRegisterIsTrueAndMembersNotIn(members)
 
     val groupList = groupPages.stream()
         .map { group: Group ->

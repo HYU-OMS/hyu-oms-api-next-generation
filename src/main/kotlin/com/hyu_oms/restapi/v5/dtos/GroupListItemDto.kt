@@ -12,12 +12,16 @@ data class GroupListItemDto(
     var allowRegister: Boolean,
 
     @JsonProperty("created_at")
-    var createdAt: LocalDateTime
+    var createdAt: LocalDateTime,
+
+    @JsonProperty("updated_at")
+    var updatedAt: LocalDateTime
 ) {
   constructor() : this(
       null,
       "",
       false,
+      LocalDateTime.now(ZoneId.of("UTC")),
       LocalDateTime.now(ZoneId.of("UTC"))
   )
 }

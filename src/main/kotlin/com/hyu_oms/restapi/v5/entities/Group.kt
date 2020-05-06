@@ -7,13 +7,7 @@ import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
-@Table(
-    name = "`group`",
-    indexes = [
-      Index(columnList = "enabled"),
-      Index(columnList = "allow_register")
-    ]
-)
+@Table(name = "`group`")
 data class Group(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,11 +16,12 @@ data class Group(
     @Column(length = 127, nullable = false)
     var name: String,
 
-    @ManyToOne(optional = true)
-    var creator: User? = null,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = false)
+    var creator: User,
 
-    @OneToMany(mappedBy = "group")
-    var members: List<Member> = listOf(),
+    @OneToMany(mappedBy = "group", orphanRemoval = true)
+    var members: List<Member> = arrayListOf(),
 
     @Column(name = "enabled", nullable = false)
     var enabled: Boolean = true,

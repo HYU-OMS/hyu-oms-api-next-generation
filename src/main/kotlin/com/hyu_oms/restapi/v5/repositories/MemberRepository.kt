@@ -7,6 +7,15 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface MemberRepository : JpaRepository<Member, Long> {
-  @Query("SELECT m FROM Member m INNER JOIN FETCH m.group INNER JOIN FETCH m.user WHERE m.user = :user")
-  fun findAllByUserUsingJoinFetch(@Param("user") user: User): List<Member>
+  @Query(
+      value = """
+        SELECT m 
+        FROM Member m 
+        INNER JOIN FETCH m.group 
+        INNER JOIN FETCH m.user 
+        WHERE 
+          m.user = :user
+      """
+  )
+  fun findAllByUser(@Param("user") user: User): List<Member>
 }

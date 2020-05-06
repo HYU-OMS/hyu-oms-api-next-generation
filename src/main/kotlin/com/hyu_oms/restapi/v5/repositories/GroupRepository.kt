@@ -11,7 +11,8 @@ import org.springframework.data.repository.query.Param
 interface GroupRepository : JpaRepository<Group, Long> {
   @Query(
       value = """
-        SELECT DISTINCT g from Group g 
+        SELECT DISTINCT g 
+        FROM Group g 
         INNER JOIN Member m ON g = m.group 
         INNER JOIN FETCH g.creator 
         WHERE 
@@ -19,7 +20,8 @@ interface GroupRepository : JpaRepository<Group, Long> {
         ORDER BY g.id ASC
       """,
       countQuery = """
-        SELECT DISTINCT COUNT(g) from Group g 
+        SELECT DISTINCT COUNT(g) 
+        FROM Group g 
         INNER JOIN Member m ON g = m.group 
         WHERE 
           g.enabled = true AND m IN :members
@@ -34,7 +36,8 @@ interface GroupRepository : JpaRepository<Group, Long> {
 
   @Query(
       value = """
-        SELECT DISTINCT g from Group g 
+        SELECT DISTINCT g 
+        FROM Group g 
         INNER JOIN Member m ON g = m.group 
         INNER JOIN FETCH g.creator 
         WHERE
@@ -44,7 +47,8 @@ interface GroupRepository : JpaRepository<Group, Long> {
         ORDER BY g.id ASC
       """,
       countQuery = """
-        SELECT DISTINCT COUNT(g) from Group g 
+        SELECT DISTINCT COUNT(g) 
+        FROM Group g 
         INNER JOIN Member m ON g = m.group 
         WHERE 
           g.enabled = true AND 

@@ -27,7 +27,7 @@ class GroupService(
     val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
 
     val user = this.userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
-    val members = this.memberRepository.findAllByUserUsingJoinFetch(user)
+    val members = this.memberRepository.findAllByUser(user)
 
     val groupPages = this.groupRepository.findDistinctByEnabledIsTrueAndMembersInOrderByIdAsc(members, pageRequest)
     val groupCount = this.groupRepository.countDistinctByEnabledIsTrueAndMembersIn(members)
@@ -49,7 +49,7 @@ class GroupService(
     val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
 
     val user = this.userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
-    val members = this.memberRepository.findAllByUserUsingJoinFetch(user)
+    val members = this.memberRepository.findAllByUser(user)
 
     val groupPages = this.groupRepository.findDistinctByEnabledIsTrueAndAllowRegisterIsTrueAndMembersNotInOrderByIdAsc(members, pageRequest)
     val groupCount = this.groupRepository.countDistinctByEnabledIsTrueAndAllowRegisterIsTrueAndMembersNotIn(members)

@@ -10,14 +10,20 @@ import org.springframework.data.repository.query.Param
 
 interface GroupRepository : JpaRepository<Group, Long> {
   @Query(
-      value = "SELECT DISTINCT g from Group g " +
-          "INNER JOIN Member m ON g = m.group " +
-          "INNER JOIN FETCH g.creator " +
-          "WHERE g.enabled = true AND m IN :members " +
-          "ORDER BY g.id ASC",
-      countQuery = "SELECT DISTINCT COUNT(g) from Group g " +
-          "INNER JOIN Member m ON g = m.group " +
-          "WHERE g.enabled = true AND m IN :members"
+      value = """
+        SELECT DISTINCT g from Group g 
+        INNER JOIN Member m ON g = m.group 
+        INNER JOIN FETCH g.creator 
+        WHERE 
+          g.enabled = true AND m IN :members 
+        ORDER BY g.id ASC
+      """,
+      countQuery = """
+        SELECT DISTINCT COUNT(g) from Group g 
+        INNER JOIN Member m ON g = m.group 
+        WHERE 
+          g.enabled = true AND m IN :members
+      """
   )
   fun findDistinctByEnabledIsTrueAndMembersInOrderByIdAsc(
       @Param("members") members: List<Member>,
@@ -27,14 +33,24 @@ interface GroupRepository : JpaRepository<Group, Long> {
   fun countDistinctByEnabledIsTrueAndMembersIn(members: List<Member>): Long
 
   @Query(
-      value = "SELECT DISTINCT g from Group g " +
-          "INNER JOIN Member m ON g = m.group " +
-          "INNER JOIN FETCH g.creator " +
-          "WHERE g.enabled = true AND g.allowRegister = true AND m NOT IN :members " +
-          "ORDER BY g.id ASC",
-      countQuery = "SELECT DISTINCT COUNT(g) from Group g " +
-          "INNER JOIN Member m ON g = m.group " +
-          "WHERE g.enabled = true AND g.allowRegister = true AND m NOT IN :members"
+      value = """
+        SELECT DISTINCT g from Group g 
+        INNER JOIN Member m ON g = m.group 
+        INNER JOIN FETCH g.creator 
+        WHERE
+          g.enabled = true AND 
+          g.allowRegister = true AND 
+          m NOT IN :members 
+        ORDER BY g.id ASC
+      """,
+      countQuery = """
+        SELECT DISTINCT COUNT(g) from Group g 
+        INNER JOIN Member m ON g = m.group 
+        WHERE 
+          g.enabled = true AND 
+          g.allowRegister = true AND 
+          m NOT IN :members
+      """
   )
   fun findDistinctByEnabledIsTrueAndAllowRegisterIsTrueAndMembersNotInOrderByIdAsc(
       @Param("members") members: List<Member>,

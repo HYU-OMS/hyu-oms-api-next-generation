@@ -16,23 +16,20 @@ interface GroupRepository : JpaRepository<Group, Long> {
         INNER JOIN Member m ON g = m.group 
         INNER JOIN FETCH g.creator 
         WHERE 
-          g.enabled = true AND m IN :members 
-        ORDER BY g.id ASC
+          g.enabled = true AND m IN :members
       """,
       countQuery = """
-        SELECT DISTINCT COUNT(g) 
+        SELECT COUNT(DISTINCT g) 
         FROM Group g 
         INNER JOIN Member m ON g = m.group 
         WHERE 
           g.enabled = true AND m IN :members
       """
   )
-  fun findDistinctByEnabledIsTrueAndMembersInOrderByIdAsc(
+  fun findAllEnrolled(
       @Param("members") members: List<Member>,
       pageable: Pageable
   ): Page<Group>
-
-  fun countDistinctByEnabledIsTrueAndMembersIn(members: List<Member>): Long
 
   @Query(
       value = """
@@ -43,11 +40,10 @@ interface GroupRepository : JpaRepository<Group, Long> {
         WHERE
           g.enabled = true AND 
           g.allowRegister = true AND 
-          m NOT IN :members 
-        ORDER BY g.id ASC
+          m NOT IN :members
       """,
       countQuery = """
-        SELECT DISTINCT COUNT(g) 
+        SELECT COUNT(DISTINCT g) 
         FROM Group g 
         INNER JOIN Member m ON g = m.group 
         WHERE 
@@ -56,10 +52,8 @@ interface GroupRepository : JpaRepository<Group, Long> {
           m NOT IN :members
       """
   )
-  fun findDistinctByEnabledIsTrueAndAllowRegisterIsTrueAndMembersNotInOrderByIdAsc(
+  fun findAllNotEnrolledAndRegisterAllowed(
       @Param("members") members: List<Member>,
       pageable: Pageable
   ): Page<Group>
-
-  fun countDistinctByEnabledIsTrueAndAllowRegisterIsTrueAndMembersNotIn(members: List<Member>): Long
 }

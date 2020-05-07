@@ -3,12 +3,15 @@ package com.hyu_oms.restapi.v5.services
 import com.hyu_oms.restapi.v5.dtos.GroupListItemDto
 import com.hyu_oms.restapi.v5.dtos.GroupListResponseDto
 import com.hyu_oms.restapi.v5.entities.Group
+import com.hyu_oms.restapi.v5.entities.Member
 import com.hyu_oms.restapi.v5.exceptions.UserNotFoundException
 import com.hyu_oms.restapi.v5.repositories.GroupRepository
 import com.hyu_oms.restapi.v5.repositories.MemberRepository
 import com.hyu_oms.restapi.v5.repositories.UserRepository
 import org.modelmapper.ModelMapper
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -22,47 +25,41 @@ class GroupService(
 ) {
   val modelMapper: ModelMapper = ModelMapper()
 
-  fun getEnrolledList(page: Int = 0, size: Int = 20): GroupListResponseDto {
-    val pageRequest = PageRequest.of(page, size)
+  private fun getMembers(): List<Member> {
     val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
-
     val user = this.userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
-    val members = this.memberRepository.findAllByUser(user)
 
-    val groupPages = this.groupRepository.findDistinctByEnabledIsTrueAndMembersInOrderByIdAsc(members, pageRequest)
-    val groupCount = this.groupRepository.countDistinctByEnabledIsTrueAndMembersIn(members)
+    return memberRepository.findAllByUser(user)
+  }
 
-    val groupList = groupPages.stream()
-        .map { group: Group ->
-          this.modelMapper.map(
-              group,
-              GroupListItemDto::class.javaObjectType
-          )
-        }
-        .collect(Collectors.toList())
+  private fun generateGroupListResponseDto(pages: Page<Group>): GroupListResponseDto {
+    return GroupListResponseDto(
+        contents = pages.stream()
+            .map { group: Group ->
+              this.modelMapper.map(
+                  group,
+                  GroupListItemDto::class.javaObjectType
+              )
+            }
+            .collect(Collectors.toList()),
+        totalPages = pages.totalPages,
+        totalElements = pages.totalElements
+    )
+  }
 
-    return GroupListResponseDto(list = groupList, count = groupCount)
+  fun getEnrolledList(page: Int = 0, size: Int = 20): GroupListResponseDto {
+    val pageRequest = PageRequest.of(page, size, Sort.by("id").ascending())
+    val members = this.getMembers()
+    val pages = this.groupRepository.findAllEnrolled(members, pageRequest)
+
+    return this.generateGroupListResponseDto(pages)
   }
 
   fun getNotEnrolledAndRegisterAllowedList(page: Int = 0, size: Int = 20): GroupListResponseDto {
-    val pageRequest = PageRequest.of(page, size)
-    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
+    val pageRequest = PageRequest.of(page, size, Sort.by("id").ascending())
+    val members = this.getMembers()
+    val pages = this.groupRepository.findAllNotEnrolledAndRegisterAllowed(members, pageRequest)
 
-    val user = this.userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
-    val members = this.memberRepository.findAllByUser(user)
-
-    val groupPages = this.groupRepository.findDistinctByEnabledIsTrueAndAllowRegisterIsTrueAndMembersNotInOrderByIdAsc(members, pageRequest)
-    val groupCount = this.groupRepository.countDistinctByEnabledIsTrueAndAllowRegisterIsTrueAndMembersNotIn(members)
-
-    val groupList = groupPages.stream()
-        .map { group: Group ->
-          this.modelMapper.map(
-              group,
-              GroupListItemDto::class.javaObjectType
-          )
-        }
-        .collect(Collectors.toList())
-
-    return GroupListResponseDto(list = groupList, count = groupCount)
+    return this.generateGroupListResponseDto(pages)
   }
 }

@@ -20,8 +20,8 @@ data class Group(
     @JoinColumn(name = "creator_id", nullable = false)
     var creator: User,
 
-    @OneToMany(mappedBy = "group", orphanRemoval = true)
-    var members: List<Member> = arrayListOf(),
+//    @OneToMany(mappedBy = "group", orphanRemoval = true)
+//    var members: List<Member> = arrayListOf(),
 
     @Column(name = "enabled", nullable = false)
     var enabled: Boolean = true,

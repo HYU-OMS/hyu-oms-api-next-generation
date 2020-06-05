@@ -1,7 +1,6 @@
 package com.hyu_oms.restapi.v5.services
 
-import com.hyu_oms.restapi.v5.dtos.GroupListItemDto
-import com.hyu_oms.restapi.v5.dtos.GroupListResponseDto
+import com.hyu_oms.restapi.v5.dtos.*
 import com.hyu_oms.restapi.v5.entities.Group
 import com.hyu_oms.restapi.v5.entities.Member
 import com.hyu_oms.restapi.v5.exceptions.UserNotFoundException
@@ -25,7 +24,7 @@ class GroupService(
 ) {
   val modelMapper: ModelMapper = ModelMapper()
 
-  private fun getMembers(): List<Member> {
+  private fun getMembersByUser(): List<Member> {
     val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
     val user = this.userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
 
@@ -49,7 +48,7 @@ class GroupService(
 
   fun getEnrolledList(page: Int = 0, size: Int = 20): GroupListResponseDto {
     val pageRequest = PageRequest.of(page, size, Sort.by("id").ascending())
-    val members = this.getMembers()
+    val members = this.getMembersByUser()
     val pages = this.groupRepository.findAllEnrolled(members, pageRequest)
 
     return this.generateGroupListResponseDto(pages)
@@ -57,7 +56,7 @@ class GroupService(
 
   fun getNotEnrolledAndRegisterAllowedList(page: Int = 0, size: Int = 20): GroupListResponseDto {
     val pageRequest = PageRequest.of(page, size, Sort.by("id").ascending())
-    val members = this.getMembers()
+    val members = this.getMembersByUser()
     val pages = this.groupRepository.findAllNotEnrolledAndRegisterAllowed(members, pageRequest)
 
     return this.generateGroupListResponseDto(pages)

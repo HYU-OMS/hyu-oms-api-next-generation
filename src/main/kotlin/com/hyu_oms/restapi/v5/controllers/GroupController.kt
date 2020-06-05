@@ -1,11 +1,11 @@
 package com.hyu_oms.restapi.v5.controllers
 
 import com.hyu_oms.restapi.v5.dtos.GroupListResponseDto
+import com.hyu_oms.restapi.v5.exceptions.UserNotEnrolledToGroupException
+import com.hyu_oms.restapi.v5.responses.ClientError4XX
 import com.hyu_oms.restapi.v5.services.GroupService
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v5/group")
@@ -28,5 +28,12 @@ class GroupController(
     return this.groupService.getNotEnrolledAndRegisterAllowedList(page = page, size = size)
   }
 
+  @ExceptionHandler(value = [UserNotEnrolledToGroupException::class])
+  @ResponseStatus(code = HttpStatus.FORBIDDEN)
+  fun userNotEnrolledToGroupException(e: UserNotEnrolledToGroupException): MutableMap<String, Any?> {
+    return ClientError4XX.USER_NOT_ENROLLED_TO_GROUP_ERROR
+  }
+
   // TODO: UserNotFoundException Handler 작성
+  // TODO: GroupNotFoundException Handler 작성
 }

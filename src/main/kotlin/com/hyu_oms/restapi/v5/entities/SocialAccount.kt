@@ -17,7 +17,7 @@ import javax.persistence.*
 data class SocialAccount(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long,
 
     @ManyToOne
     @JoinColumn(name = "user_id")

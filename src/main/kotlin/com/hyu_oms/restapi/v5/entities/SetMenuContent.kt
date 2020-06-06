@@ -11,7 +11,7 @@ import javax.persistence.*
 data class SetMenuContent(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long,
 
     @OneToOne
     var menu: Menu,

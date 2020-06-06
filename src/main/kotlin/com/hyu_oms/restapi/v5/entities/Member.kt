@@ -1,18 +1,17 @@
 package com.hyu_oms.restapi.v5.entities
 
-import org.hibernate.annotations.*
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.persistence.*
-import javax.persistence.Entity
-import javax.persistence.Table
 
 @Entity
 @Table(name = "`member`")
 data class Member(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

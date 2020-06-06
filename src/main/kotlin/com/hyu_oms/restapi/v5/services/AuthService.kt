@@ -161,6 +161,7 @@ class AuthService(
     return targetUser
   }
 
+  // TODO: Refresh Token verification 절차 필요.
   fun tokenRefresh(requestBody: AuthTokenRefreshRequestDto): AuthTokenResponseDto {
     val refreshToken = requestBody.refresh
 

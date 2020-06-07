@@ -17,5 +17,30 @@ class ClientError4XX {
         "message" to "Unable to verify given JWT.",
         "data" to null
     )
+    val JWT_UNAUTHORIZED = mutableMapOf<String, Any?>(
+        "code" to "F003",
+        "message" to "JWT must be provided.",
+        "data" to null
+    )
+    val JWT_FORBIDDEN = mutableMapOf<String, Any?>(
+        "code" to "F004",
+        "message" to "Access denied with provided JWT.",
+        "data" to null
+    )
+    val UNSUPPORTED_SOCIAL_MEDIA_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F005",
+        "message" to "This social media is not supported yet.",
+        "data" to null
+    )
+    val USER_NOT_ENROLLED_TO_GROUP_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F006",
+        "message" to "This user is not enrolled to requested group.",
+        "data" to null
+    )
+    val GROUP_ALREADY_CREATED_IN_12_HOURS_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F007",
+        "message" to "This user created another group within 12 hours. Please try again later.",
+        "data" to null
+    )
   }
 }

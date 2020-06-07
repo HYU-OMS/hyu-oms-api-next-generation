@@ -3,9 +3,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   id("org.springframework.boot") version "2.2.6.RELEASE"
   id("io.spring.dependency-management") version "1.0.9.RELEASE"
-  kotlin("jvm") version "1.3.71"
-  kotlin("plugin.spring") version "1.3.71"
-  kotlin("plugin.jpa") version "1.3.71"
+  id("org.jetbrains.kotlin.plugin.allopen") version "1.3.72"
+  kotlin("jvm") version "1.3.72"
+  kotlin("plugin.spring") version "1.3.72"
+  kotlin("plugin.jpa") version "1.3.72"
 }
 
 group = "com.hyu_oms"
@@ -23,13 +24,17 @@ repositories {
   mavenCentral()
 }
 
+allOpen {
+  annotation("javax.persistence.Entity")
+}
+
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("mysql:mysql-connector-java")
   implementation(group = "org.modelmapper", name = "modelmapper", version = "2.3.0")
   annotationProcessor(group = "org.springframework.boot", name = "spring-boot-configuration-processor")
-//  implementation("org.springframework.boot:spring-boot-starter-security")
+  implementation("org.springframework.boot:spring-boot-starter-security")
   implementation(group = "com.auth0", name = "java-jwt", version = "3.10.2")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("org.jetbrains.kotlin:kotlin-reflect")

@@ -2,6 +2,7 @@ package com.hyu_oms.restapi.v5.repositories
 
 import com.hyu_oms.restapi.v5.entities.Group
 import com.hyu_oms.restapi.v5.entities.Member
+import com.hyu_oms.restapi.v5.entities.User
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -20,4 +21,6 @@ interface GroupRepository : JpaRepository<Group, Long> {
       id: List<Long>,
       pageable: Pageable
   ): Page<Group>
+
+  fun findByCreatorAndEnabledIsTrue(creator: User): Group?
 }

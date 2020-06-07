@@ -102,7 +102,7 @@ class AuthService(
     return AuthTokenResponseDto(accessToken, refreshToken)
   }
 
-  @Transactional
+  @Transactional(readOnly = false)
   fun oauthWithKakao(code: String, redirectedUrl: String): User {
     val urlForOauth = URI("https://kauth.kakao.com/oauth/token")
 

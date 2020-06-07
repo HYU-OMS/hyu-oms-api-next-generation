@@ -1,22 +1,30 @@
 package com.hyu_oms.restapi.v5.services
 
+import com.hyu_oms.restapi.v5.dtos.group.GroupAddResponseDto
 import com.hyu_oms.restapi.v5.dtos.group.GroupListItemDto
 import com.hyu_oms.restapi.v5.dtos.group.GroupListResponseDto
 import com.hyu_oms.restapi.v5.entities.Group
 import com.hyu_oms.restapi.v5.entities.Member
+import com.hyu_oms.restapi.v5.exceptions.GroupAlreadyCreatedIn12HoursException
+import com.hyu_oms.restapi.v5.exceptions.UserNotFoundException
 import com.hyu_oms.restapi.v5.repositories.GroupRepository
 import com.hyu_oms.restapi.v5.repositories.MemberRepository
+import com.hyu_oms.restapi.v5.repositories.UserRepository
 import org.modelmapper.ModelMapper
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.stream.Collectors
 
 @Service
 class GroupService(
+    private val userRepository: UserRepository,
     private val groupRepository: GroupRepository,
     private val memberRepository: MemberRepository
 ) {
@@ -67,7 +75,33 @@ class GroupService(
   }
 
   @Transactional(readOnly = false)
-  fun addNewGroup() {
+  fun addNewGroup(name: String): GroupAddResponseDto {
+    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
+    val user = this.userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
 
+    val existingGroup = this.groupRepository.findByCreatorAndEnabledIsTrue(creator = user)
+    if(existingGroup != null) {
+      val createdAt = existingGroup.createdAt
+      val currentTime = LocalDateTime.now(ZoneId.of("UTC"))
+
+      if(createdAt.plusHours(12) > currentTime) {
+        throw GroupAlreadyCreatedIn12HoursException()
+      }
+    }
+
+    val newGroup = Group(
+        name = name,
+        creator = user
+    )
+    this.groupRepository.save(newGroup)
+
+    val newMember = Member(
+        user = user,
+        group = newGroup,
+        hasAdminPermission = true
+    )
+    this.memberRepository.save(newMember)
+
+    return GroupAddResponseDto(newGroupId = newGroup.id)
   }
 }

@@ -1,7 +1,7 @@
 package com.hyu_oms.restapi.v5.services
 
-import com.hyu_oms.restapi.v5.dtos.GroupListItemDto
-import com.hyu_oms.restapi.v5.dtos.GroupListResponseDto
+import com.hyu_oms.restapi.v5.dtos.group.GroupListItemDto
+import com.hyu_oms.restapi.v5.dtos.group.GroupListResponseDto
 import com.hyu_oms.restapi.v5.entities.Group
 import com.hyu_oms.restapi.v5.entities.Member
 import com.hyu_oms.restapi.v5.repositories.GroupRepository
@@ -64,5 +64,10 @@ class GroupService(
     )
 
     return this.generateGroupListResponseDto(pages)
+  }
+
+  @Transactional(readOnly = false)
+  fun addNewGroup() {
+
   }
 }

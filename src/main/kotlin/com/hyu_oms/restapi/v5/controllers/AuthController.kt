@@ -3,9 +3,9 @@ package com.hyu_oms.restapi.v5.controllers
 import com.auth0.jwt.exceptions.JWTCreationException
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.hyu_oms.restapi.v5.dtos.AuthTokenInitialIssueRequestDto
-import com.hyu_oms.restapi.v5.dtos.AuthTokenRefreshRequestDto
-import com.hyu_oms.restapi.v5.dtos.AuthTokenResponseDto
+import com.hyu_oms.restapi.v5.dtos.auth.AuthTokenInitialIssueRequestDto
+import com.hyu_oms.restapi.v5.dtos.auth.AuthTokenRefreshRequestDto
+import com.hyu_oms.restapi.v5.dtos.auth.AuthTokenResponseDto
 import com.hyu_oms.restapi.v5.exceptions.UnsupportedSocialMediaException
 import com.hyu_oms.restapi.v5.responses.ClientError4XX
 import com.hyu_oms.restapi.v5.services.AuthService

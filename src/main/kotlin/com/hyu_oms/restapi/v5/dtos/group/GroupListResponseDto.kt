@@ -1,4 +1,4 @@
-package com.hyu_oms.restapi.v5.dtos
+package com.hyu_oms.restapi.v5.dtos.group
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

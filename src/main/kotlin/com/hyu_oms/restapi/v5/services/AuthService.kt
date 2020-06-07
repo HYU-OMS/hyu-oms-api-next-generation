@@ -4,9 +4,9 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
-import com.hyu_oms.restapi.v5.dtos.AuthTokenInitialIssueRequestDto
-import com.hyu_oms.restapi.v5.dtos.AuthTokenRefreshRequestDto
-import com.hyu_oms.restapi.v5.dtos.AuthTokenResponseDto
+import com.hyu_oms.restapi.v5.dtos.auth.AuthTokenInitialIssueRequestDto
+import com.hyu_oms.restapi.v5.dtos.auth.AuthTokenRefreshRequestDto
+import com.hyu_oms.restapi.v5.dtos.auth.AuthTokenResponseDto
 import com.hyu_oms.restapi.v5.entities.SocialAccount
 import com.hyu_oms.restapi.v5.entities.User
 import com.hyu_oms.restapi.v5.enums.SocialAccountType

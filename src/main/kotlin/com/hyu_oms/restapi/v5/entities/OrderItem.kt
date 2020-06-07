@@ -7,7 +7,7 @@ import javax.persistence.*
 data class OrderItem(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long = 0,
 
     @ManyToOne
     @JoinColumn(name = "order_id")

@@ -11,7 +11,7 @@ import javax.persistence.*
 data class Queue(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long = 0,
 
     @ManyToOne
     var order: Order,

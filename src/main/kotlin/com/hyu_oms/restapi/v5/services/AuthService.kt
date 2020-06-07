@@ -4,9 +4,9 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
-import com.hyu_oms.restapi.v5.dtos.AuthTokenInitialIssueRequestDto
-import com.hyu_oms.restapi.v5.dtos.AuthTokenRefreshRequestDto
-import com.hyu_oms.restapi.v5.dtos.AuthTokenResponseDto
+import com.hyu_oms.restapi.v5.dtos.auth.AuthTokenInitialIssueRequestDto
+import com.hyu_oms.restapi.v5.dtos.auth.AuthTokenRefreshRequestDto
+import com.hyu_oms.restapi.v5.dtos.auth.AuthTokenResponseDto
 import com.hyu_oms.restapi.v5.entities.SocialAccount
 import com.hyu_oms.restapi.v5.entities.User
 import com.hyu_oms.restapi.v5.enums.SocialAccountType
@@ -102,7 +102,7 @@ class AuthService(
     return AuthTokenResponseDto(accessToken, refreshToken)
   }
 
-  @Transactional
+  @Transactional(readOnly = false)
   fun oauthWithKakao(code: String, redirectedUrl: String): User {
     val urlForOauth = URI("https://kauth.kakao.com/oauth/token")
 
@@ -161,6 +161,7 @@ class AuthService(
     return targetUser
   }
 
+  // TODO: Refresh Token verification 절차 필요.
   fun tokenRefresh(requestBody: AuthTokenRefreshRequestDto): AuthTokenResponseDto {
     val refreshToken = requestBody.refresh
 

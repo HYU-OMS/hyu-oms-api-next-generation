@@ -11,17 +11,17 @@ import javax.persistence.*
 data class Member(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long = 0,
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     var user: User,
 
-    @ManyToOne
-    @JoinColumn(name = "group_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id", nullable = false)
     var group: Group,
 
-    var enabled: Boolean = false,
+    var enabled: Boolean = true,
 
     @Column(name = "has_admin_permission")
     var hasAdminPermission: Boolean = false,

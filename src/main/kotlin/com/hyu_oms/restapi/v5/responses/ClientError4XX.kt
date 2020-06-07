@@ -32,5 +32,15 @@ class ClientError4XX {
         "message" to "This social media is not supported yet.",
         "data" to null
     )
+    val USER_NOT_ENROLLED_TO_GROUP_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F006",
+        "message" to "This user is not enrolled to requested group.",
+        "data" to null
+    )
+    val GROUP_ALREADY_CREATED_IN_12_HOURS_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F007",
+        "message" to "This user created another group within 12 hours. Please try again later.",
+        "data" to null
+    )
   }
 }

@@ -1,9 +1,9 @@
 package com.hyu_oms.restapi.v5.controllers
 
-import com.hyu_oms.restapi.v5.dtos.group.GroupAddRequestDto
-import com.hyu_oms.restapi.v5.dtos.group.GroupAddResponseDto
-import com.hyu_oms.restapi.v5.dtos.group.GroupListResponseDto
+import com.hyu_oms.restapi.v5.dtos.group.*
 import com.hyu_oms.restapi.v5.exceptions.GroupAlreadyCreatedIn12HoursException
+import com.hyu_oms.restapi.v5.exceptions.GroupNotFoundException
+import com.hyu_oms.restapi.v5.exceptions.PermissionDeniedException
 import com.hyu_oms.restapi.v5.exceptions.UserNotEnrolledToGroupException
 import com.hyu_oms.restapi.v5.responses.ClientError4XX
 import com.hyu_oms.restapi.v5.services.GroupService
@@ -40,6 +40,18 @@ class GroupController(
     return this.groupService.addNewGroup(name = requestBody.name!!)
   }
 
+  @PutMapping("/{groupId}")
+  fun updateGroup(
+      @RequestBody @Valid requestBody: GroupUpdateRequestDto,
+      @PathVariable groupId: Long
+  ): GroupUpdateResponseDto {
+    return this.groupService.updateGroup(
+        groupId = groupId,
+        name = requestBody.name,
+        allowRegister = requestBody.allowRegister
+    )
+  }
+
   @ExceptionHandler(value = [UserNotEnrolledToGroupException::class])
   @ResponseStatus(code = HttpStatus.FORBIDDEN)
   fun userNotEnrolledToGroupException(e: UserNotEnrolledToGroupException): MutableMap<String, Any?> {
@@ -52,6 +64,17 @@ class GroupController(
     return ClientError4XX.GROUP_ALREADY_CREATED_IN_12_HOURS_ERROR
   }
 
+  @ExceptionHandler(value = [GroupNotFoundException::class])
+  @ResponseStatus(code = HttpStatus.NOT_FOUND)
+  fun groupNotFoundException(e: GroupNotFoundException): MutableMap<String, Any?> {
+    return ClientError4XX.GROUP_NOT_FOUND_ERROR
+  }
+
+  @ExceptionHandler(value = [PermissionDeniedException::class])
+  @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
+  fun permissionDeniedException(e: PermissionDeniedException): MutableMap<String, Any?> {
+    return ClientError4XX.PERMISSION_DENIED_ERROR
+  }
+
   // TODO: UserNotFoundException Handler 작성
-  // TODO: GroupNotFoundException Handler 작성
 }

@@ -1,10 +1,14 @@
 package com.hyu_oms.restapi.v5.repositories
 
+import com.hyu_oms.restapi.v5.entities.Group
 import com.hyu_oms.restapi.v5.entities.Member
+import com.hyu_oms.restapi.v5.entities.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
 interface MemberRepository : JpaRepository<Member, Long> {
-  fun findAllByUserIdAndEnabledIsTrue(userId: Long): List<Member>
+  fun findAllByUserAndEnabledIsTrue(user: User): List<Member>
+
+  fun findAllByGroupAndEnabledIsTrue(group: Group): List<Member>
 }

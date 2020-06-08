@@ -42,5 +42,15 @@ class ClientError4XX {
         "message" to "This user created another group within 12 hours. Please try again later.",
         "data" to null
     )
+    val GROUP_NOT_FOUND_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F008",
+        "message" to "Request group does not exists.",
+        "data" to null
+    )
+    val PERMISSION_DENIED_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F009",
+        "message" to "You don't have enough permission for this request.",
+        "data" to null
+    )
   }
 }

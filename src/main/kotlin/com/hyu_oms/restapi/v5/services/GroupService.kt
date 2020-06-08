@@ -3,7 +3,7 @@ package com.hyu_oms.restapi.v5.services
 import com.hyu_oms.restapi.v5.dtos.group.GroupAddResponseDto
 import com.hyu_oms.restapi.v5.dtos.group.GroupListItemDto
 import com.hyu_oms.restapi.v5.dtos.group.GroupListResponseDto
-import com.hyu_oms.restapi.v5.dtos.group.GroupUpdateResponseDto
+import com.hyu_oms.restapi.v5.dtos.group.GroupUpdateAndDeleteResponseDto
 import com.hyu_oms.restapi.v5.entities.Group
 import com.hyu_oms.restapi.v5.entities.Member
 import com.hyu_oms.restapi.v5.entities.User
@@ -39,9 +39,13 @@ class GroupService(
     return userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
   }
 
-  private fun getMembersByUser(): List<Member> {
-    val user = this.getUserFromContext()
-    return this.memberRepository.findAllByUserAndEnabledIsTrue(user)
+  private fun getGroupAndCheckIfCreator(user: User, groupId: Long): Group {
+    val targetGroup = this.groupRepository.findByIdOrNull(id = groupId) ?: throw GroupNotFoundException()
+    if(targetGroup.creator.id != user.id) {
+      throw PermissionDeniedException()
+    }
+
+    return targetGroup
   }
 
   private fun generateGroupListResponseDto(pages: Page<Group>): GroupListResponseDto {
@@ -62,7 +66,8 @@ class GroupService(
   @Transactional(readOnly = true)
   fun getEnrolledList(page: Int = 0, size: Int = 20): GroupListResponseDto {
     val pageRequest = PageRequest.of(page, size, Sort.by("id").ascending())
-    val members = this.getMembersByUser()
+    val user = this.getUserFromContext()
+    val members = this.memberRepository.findAllByUserAndEnabledIsTrue(user)
     val pages = this.groupRepository.findDistinctByEnabledIsTrueAndMembersIn(members, pageRequest)
 
     return this.generateGroupListResponseDto(pages)
@@ -72,7 +77,8 @@ class GroupService(
   @Transactional(readOnly = true)
   fun getNotEnrolledAndRegisterAllowedList(page: Int = 0, size: Int = 20): GroupListResponseDto {
     val pageRequest = PageRequest.of(page, size, Sort.by("id").ascending())
-    val members = this.getMembersByUser()
+    val user = this.getUserFromContext()
+    val members = this.memberRepository.findAllByUserAndEnabledIsTrue(user)
     val enrolledGroups = this.groupRepository.findDistinctByEnabledIsTrueAndMembersIn(members)
 
     val pages = this.groupRepository.findDistinctByEnabledIsTrueAndAllowRegisterIsTrueAndIdIsNotIn(
@@ -114,13 +120,9 @@ class GroupService(
   }
 
   @Transactional(readOnly = false)
-  fun updateGroup(groupId: Long, name: String?, allowRegister: Boolean?): GroupUpdateResponseDto {
+  fun updateGroup(groupId: Long, name: String?, allowRegister: Boolean?): GroupUpdateAndDeleteResponseDto {
     val user = this.getUserFromContext()
-
-    val targetGroup = this.groupRepository.findByIdOrNull(id = groupId) ?: throw GroupNotFoundException()
-    if(targetGroup.creator.id != user.id) {
-      throw PermissionDeniedException()
-    }
+    val targetGroup = this.getGroupAndCheckIfCreator(user = user, groupId = groupId)
 
     if(name != null) {
       targetGroup.name = name
@@ -132,6 +134,25 @@ class GroupService(
 
     this.groupRepository.save(targetGroup)
 
-    return GroupUpdateResponseDto(groupId = groupId)
+    return GroupUpdateAndDeleteResponseDto(groupId = groupId)
+  }
+
+  @Transactional(readOnly = false)
+  fun deleteGroup(groupId: Long): GroupUpdateAndDeleteResponseDto {
+    val user = this.getUserFromContext()
+    val targetGroup = this.getGroupAndCheckIfCreator(user = user, groupId = groupId)
+
+    // 해당 그룹의 모든 멤버를 disable 처리.
+    val members = this.memberRepository.findAllByGroupAndEnabledIsTrue(group = targetGroup)
+    for(member in members) {
+      member.enabled = false
+    }
+    this.memberRepository.saveAll(members)
+
+    // 그리고 해당 그룹을 disable 처리.
+    targetGroup.enabled = false
+    this.groupRepository.save(targetGroup)
+
+    return GroupUpdateAndDeleteResponseDto(groupId = groupId)
   }
 }

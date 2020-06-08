@@ -44,12 +44,17 @@ class GroupController(
   fun updateGroup(
       @RequestBody @Valid requestBody: GroupUpdateRequestDto,
       @PathVariable groupId: Long
-  ): GroupUpdateResponseDto {
+  ): GroupUpdateAndDeleteResponseDto {
     return this.groupService.updateGroup(
         groupId = groupId,
         name = requestBody.name,
         allowRegister = requestBody.allowRegister
     )
+  }
+
+  @DeleteMapping("/{groupId}")
+  fun deleteGroup(@PathVariable groupId: Long): GroupUpdateAndDeleteResponseDto {
+    return this.groupService.deleteGroup(groupId = groupId)
   }
 
   @ExceptionHandler(value = [UserNotEnrolledToGroupException::class])

@@ -2,7 +2,7 @@ package com.hyu_oms.restapi.v5.dtos.group
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class GroupUpdateResponseDto(
+data class GroupUpdateAndDeleteResponseDto(
     @JsonProperty("group_id")
     var groupId: Long
 ) {

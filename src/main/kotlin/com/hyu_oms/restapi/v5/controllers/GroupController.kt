@@ -1,7 +1,6 @@
 package com.hyu_oms.restapi.v5.controllers
 
 import com.hyu_oms.restapi.v5.dtos.group.*
-import com.hyu_oms.restapi.v5.exceptions.GroupAlreadyCreatedIn12HoursException
 import com.hyu_oms.restapi.v5.exceptions.GroupNotFoundException
 import com.hyu_oms.restapi.v5.exceptions.PermissionDeniedException
 import com.hyu_oms.restapi.v5.exceptions.UserNotEnrolledToGroupException
@@ -61,12 +60,6 @@ class GroupController(
   @ResponseStatus(code = HttpStatus.FORBIDDEN)
   fun userNotEnrolledToGroupException(e: UserNotEnrolledToGroupException): MutableMap<String, Any?> {
     return ClientError4XX.USER_NOT_ENROLLED_TO_GROUP_ERROR
-  }
-
-  @ExceptionHandler(value = [GroupAlreadyCreatedIn12HoursException::class])
-  @ResponseStatus(code = HttpStatus.FORBIDDEN)
-  fun groupAlreadyCreatedIn12HoursException(e: GroupAlreadyCreatedIn12HoursException): MutableMap<String, Any?> {
-    return ClientError4XX.GROUP_ALREADY_CREATED_IN_12_HOURS_ERROR
   }
 
   @ExceptionHandler(value = [GroupNotFoundException::class])

@@ -7,7 +7,6 @@ import com.hyu_oms.restapi.v5.dtos.group.GroupUpdateAndDeleteResponseDto
 import com.hyu_oms.restapi.v5.entities.Group
 import com.hyu_oms.restapi.v5.entities.Member
 import com.hyu_oms.restapi.v5.entities.User
-import com.hyu_oms.restapi.v5.exceptions.GroupAlreadyCreatedIn12HoursException
 import com.hyu_oms.restapi.v5.exceptions.GroupNotFoundException
 import com.hyu_oms.restapi.v5.exceptions.PermissionDeniedException
 import com.hyu_oms.restapi.v5.exceptions.UserNotFoundException
@@ -21,8 +20,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.stream.Collectors
 
 @Service
@@ -92,15 +89,7 @@ class GroupService(
   fun addNewGroup(name: String): GroupAddResponseDto {
     val user = this.getUserFromContext()
 
-    val existingGroup = this.groupRepository.findByCreatorAndEnabledIsTrue(creator = user)
-    if (existingGroup != null) {
-      val createdAt = existingGroup.createdAt
-      val currentTime = LocalDateTime.now(ZoneId.of("UTC"))
-
-      if (createdAt.plusHours(12) > currentTime) {
-        throw GroupAlreadyCreatedIn12HoursException()
-      }
-    }
+    // TODO: 그룹 생성 시간 제한 방법 도입 필요.
 
     val newGroup = Group(
         name = name,

@@ -52,5 +52,10 @@ class ClientError4XX {
         "message" to "Requested menu does not exists.",
         "data" to null
     )
+    val SET_MENU_NOT_FOUND_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F010",
+        "message" to "Requested setmenu does not exists.",
+        "data" to null
+    )
   }
 }

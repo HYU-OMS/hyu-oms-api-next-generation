@@ -13,6 +13,10 @@ data class SetMenuContent(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
 
+    @ManyToOne
+    @JoinColumn(name = "set_menu_id")
+    var setMenu: SetMenu,
+
     @OneToOne
     var menu: Menu,
 

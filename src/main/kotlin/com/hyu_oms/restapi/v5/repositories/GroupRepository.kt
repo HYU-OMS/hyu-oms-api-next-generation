@@ -22,5 +22,7 @@ interface GroupRepository : JpaRepository<Group, Long> {
       pageable: Pageable
   ): Page<Group>
 
+  fun findByIdAndEnabledIsTrue(id: Long): Group?
+
   fun findByCreatorAndEnabledIsTrue(creator: User): Group?
 }

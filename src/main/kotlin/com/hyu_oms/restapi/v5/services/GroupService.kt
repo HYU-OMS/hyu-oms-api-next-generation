@@ -18,7 +18,6 @@ import org.modelmapper.ModelMapper
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,16 +31,16 @@ class GroupService(
     private val groupRepository: GroupRepository,
     private val memberRepository: MemberRepository
 ) {
-  val modelMapper: ModelMapper = ModelMapper()
+  private val modelMapper: ModelMapper = ModelMapper()
 
   private fun getUserFromContext(): User {
     val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
-    return userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException()
+    return userRepository.findByIdAndEnabledIsTrue(userId) ?: throw UserNotFoundException()
   }
 
   private fun getGroupAndCheckIfCreator(user: User, groupId: Long): Group {
-    val targetGroup = this.groupRepository.findByIdOrNull(id = groupId) ?: throw GroupNotFoundException()
-    if(targetGroup.creator.id != user.id) {
+    val targetGroup = this.groupRepository.findByIdAndEnabledIsTrue(id = groupId) ?: throw GroupNotFoundException()
+    if (targetGroup.creator.id != user.id) {
       throw PermissionDeniedException()
     }
 
@@ -94,11 +93,11 @@ class GroupService(
     val user = this.getUserFromContext()
 
     val existingGroup = this.groupRepository.findByCreatorAndEnabledIsTrue(creator = user)
-    if(existingGroup != null) {
+    if (existingGroup != null) {
       val createdAt = existingGroup.createdAt
       val currentTime = LocalDateTime.now(ZoneId.of("UTC"))
 
-      if(createdAt.plusHours(12) > currentTime) {
+      if (createdAt.plusHours(12) > currentTime) {
         throw GroupAlreadyCreatedIn12HoursException()
       }
     }
@@ -124,11 +123,11 @@ class GroupService(
     val user = this.getUserFromContext()
     val targetGroup = this.getGroupAndCheckIfCreator(user = user, groupId = groupId)
 
-    if(name != null) {
+    if (name != null) {
       targetGroup.name = name
     }
 
-    if(allowRegister != null) {
+    if (allowRegister != null) {
       targetGroup.allowRegister = allowRegister
     }
 
@@ -140,16 +139,10 @@ class GroupService(
   @Transactional(readOnly = false)
   fun deleteGroup(groupId: Long): GroupUpdateAndDeleteResponseDto {
     val user = this.getUserFromContext()
+
     val targetGroup = this.getGroupAndCheckIfCreator(user = user, groupId = groupId)
+    this.memberRepository.deleteMembersByGroup(group = targetGroup)
 
-    // 해당 그룹의 모든 멤버를 disable 처리.
-    val members = this.memberRepository.findAllByGroupAndEnabledIsTrue(group = targetGroup)
-    for(member in members) {
-      member.enabled = false
-    }
-    this.memberRepository.saveAll(members)
-
-    // 그리고 해당 그룹을 disable 처리.
     targetGroup.enabled = false
     this.groupRepository.save(targetGroup)
 

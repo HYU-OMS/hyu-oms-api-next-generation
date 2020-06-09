@@ -35,7 +35,7 @@ class GroupController(
   @PostMapping
   @ResponseStatus(code = HttpStatus.CREATED)
   fun addNewGroup(
-    @RequestBody @Valid requestBody: GroupAddRequestDto
+      @RequestBody @Valid requestBody: GroupAddRequestDto
   ): GroupAddResponseDto {
     return this.groupService.addNewGroup(name = requestBody.name!!)
   }

@@ -6,5 +6,5 @@ data class MenuListItemDto(
     var price: Long,
     var enabled: Boolean = true
 ) {
-  constructor(): this(0, "", 0, true)
+  constructor() : this(0, "", 0, true)
 }

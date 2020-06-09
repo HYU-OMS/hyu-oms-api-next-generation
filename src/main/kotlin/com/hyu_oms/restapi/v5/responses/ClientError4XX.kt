@@ -44,12 +44,17 @@ class ClientError4XX {
     )
     val GROUP_NOT_FOUND_ERROR = mutableMapOf<String, Any?>(
         "code" to "F008",
-        "message" to "Request group does not exists.",
+        "message" to "Requested group does not exists.",
         "data" to null
     )
     val PERMISSION_DENIED_ERROR = mutableMapOf<String, Any?>(
         "code" to "F009",
         "message" to "You don't have enough permission for this request.",
+        "data" to null
+    )
+    val MENU_NOT_FOUND_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F010",
+        "message" to "Requested menu does not exists.",
         "data" to null
     )
   }

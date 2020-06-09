@@ -16,7 +16,7 @@ data class Menu(
     @Column(length = 127, nullable = false)
     var name: String,
 
-    var price: Long,
+    var price: Int,
 
     @ManyToOne
     @JoinColumn(name = "group_id")

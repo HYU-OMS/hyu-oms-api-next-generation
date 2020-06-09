@@ -16,7 +16,10 @@ data class SetMenu(
     @Column(length = 127, nullable = false)
     var name: String,
 
-    var price: Long,
+    var price: Int,
+
+    @OneToMany(mappedBy = "setMenu", targetEntity = SetMenuContent::class, fetch = FetchType.LAZY)
+    var setMenuContents: List<SetMenuContent> = arrayListOf(),
 
     @ManyToOne
     @JoinColumn(name = "group_id")

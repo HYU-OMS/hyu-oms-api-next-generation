@@ -14,9 +14,15 @@ data class Queue(
     var id: Long = 0,
 
     @ManyToOne
+    @JoinColumn(name = "order_id")
     var order: Order,
 
     @ManyToOne
+    @JoinColumn(name = "group_id")
+    var group: Group,
+
+    @ManyToOne
+    @JoinColumn(name = "menu_id")
     var menu: Menu,
 
     @Column(length = 127, nullable = false)

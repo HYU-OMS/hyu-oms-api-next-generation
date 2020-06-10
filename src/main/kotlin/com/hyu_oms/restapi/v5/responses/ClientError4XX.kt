@@ -69,5 +69,15 @@ class ClientError4XX {
         "message" to "Requested order is not in pending status.",
         "data" to null
     )
+    val QUEUE_ITEM_NOT_FOUND_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F013",
+        "message" to "Requested queue item does not exists.",
+        "data" to null
+    )
+    val QUEUE_ITEM_ALREADY_DELIVERED_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F014",
+        "message" to "Requested queue item is already delivered.",
+        "data" to null
+    )
   }
 }

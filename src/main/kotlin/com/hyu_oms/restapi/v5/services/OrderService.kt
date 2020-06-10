@@ -205,6 +205,7 @@ class OrderService(
           // Menu
           queues.add(Queue(
               order = order,
+              group = order.group,
               menu = orderItem.menuItem!!,
               destination = order.destination,
               amount = orderItem.menuAmount!!
@@ -217,6 +218,7 @@ class OrderService(
 
             queues.add(Queue(
                 order = order,
+                group = order.group,
                 menu = menu,
                 destination = order.destination,
                 amount = amount

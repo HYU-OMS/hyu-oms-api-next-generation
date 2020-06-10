@@ -1,7 +1,7 @@
 package com.hyu_oms.restapi.v5.services
 
+import com.hyu_oms.restapi.v5.dtos.menu.MenuContentItemDto
 import com.hyu_oms.restapi.v5.dtos.setmenu.SetMenuAddResponseDto
-import com.hyu_oms.restapi.v5.dtos.setmenu.SetMenuContentItemDto
 import com.hyu_oms.restapi.v5.dtos.setmenu.SetMenuListItemDto
 import com.hyu_oms.restapi.v5.dtos.setmenu.SetMenuUpdateResponseDto
 import com.hyu_oms.restapi.v5.entities.SetMenu
@@ -64,7 +64,7 @@ class SetMenuService(
       groupId: Long,
       name: String,
       price: Int,
-      menuContents: List<SetMenuContentItemDto>
+      menuContents: List<MenuContentItemDto>
   ): SetMenuAddResponseDto {
     val user = this.getUserFromContext()
     val group = this.groupRepository.findByIdAndEnabledIsTrue(id = groupId) ?: throw GroupNotFoundException()

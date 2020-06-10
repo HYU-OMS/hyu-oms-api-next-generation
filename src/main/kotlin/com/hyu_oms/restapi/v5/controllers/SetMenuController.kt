@@ -63,7 +63,7 @@ class SetMenuController(
 
   @ExceptionHandler(value = [SetMenuNotFoundException::class])
   @ResponseStatus(code = HttpStatus.NOT_FOUND)
-  fun menuNotFoundException(e: SetMenuNotFoundException): MutableMap<String, Any?> {
+  fun setMenuNotFoundException(e: SetMenuNotFoundException): MutableMap<String, Any?> {
     return ClientError4XX.SET_MENU_NOT_FOUND_ERROR
   }
 

@@ -56,6 +56,7 @@ class OrderService(
     )
   }
 
+  @Transactional(readOnly = true)
   fun getAllOrderList(
       groupId: Long,
       page: Int = 0,
@@ -79,6 +80,7 @@ class OrderService(
     return this.generateOrderListResponseDto(pages = pages)
   }
 
+  @Transactional(readOnly = true)
   fun getAllPendingOrderList(
       groupId: Long,
       page: Int = 0,

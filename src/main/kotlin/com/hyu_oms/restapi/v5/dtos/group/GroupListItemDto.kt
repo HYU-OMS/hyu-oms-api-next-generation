@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 data class GroupListItemDto(
-    var id: Long?,
+    var id: Long,
     var name: String,
 
     @JsonProperty("allow_register")
@@ -18,7 +18,7 @@ data class GroupListItemDto(
     var updatedAt: LocalDateTime
 ) {
   constructor() : this(
-      null,
+      0,
       "",
       false,
       LocalDateTime.now(ZoneId.of("UTC")),

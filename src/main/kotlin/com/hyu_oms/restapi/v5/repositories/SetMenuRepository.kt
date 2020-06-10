@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface SetMenuRepository : JpaRepository<SetMenu, Long> {
   fun findAllByGroup(group: Group): List<SetMenu>
+
+  fun findDistinctByIdIn(ids: List<Long>): List<SetMenu>
 }

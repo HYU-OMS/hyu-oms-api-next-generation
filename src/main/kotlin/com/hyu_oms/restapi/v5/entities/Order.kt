@@ -25,9 +25,12 @@ data class Order(
     @Column(length = 127, nullable = false)
     var destination: String,
 
-    var totalPrice: Long,
+    var totalPrice: Int,
 
     var status: OrderStatus = OrderStatus.PD,
+
+    @OneToMany(mappedBy = "order", targetEntity = OrderItem::class, fetch = FetchType.LAZY)
+    var orderItems: List<OrderItem> = arrayListOf(),
 
     @CreationTimestamp
     var createdAt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")),

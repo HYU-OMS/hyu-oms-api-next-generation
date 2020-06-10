@@ -57,5 +57,27 @@ class ClientError4XX {
         "message" to "Requested setmenu does not exists.",
         "data" to null
     )
+
+    // TODO: 어떤 메뉴가 disabled 되었는지 담아서 보내줘야 함.
+    val DISABLED_MENU_OR_SET_MENU_REQUESTED_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F011",
+        "message" to "Requested menu or setmenu is disabled.",
+        "data" to listOf<String>()
+    )
+    val ORDER_IS_NOT_PENDING_STATUS_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F012",
+        "message" to "Requested order is not in pending status.",
+        "data" to null
+    )
+    val QUEUE_ITEM_NOT_FOUND_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F013",
+        "message" to "Requested queue item does not exists.",
+        "data" to null
+    )
+    val QUEUE_ITEM_ALREADY_DELIVERED_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F014",
+        "message" to "Requested queue item is already delivered.",
+        "data" to null
+    )
   }
 }

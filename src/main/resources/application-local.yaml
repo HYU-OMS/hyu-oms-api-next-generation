@@ -1,0 +1,16 @@
+spring:
+  profiles: local
+  jpa:
+    show-sql: true
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL57Dialect
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+    open-in-view: false
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?characterEncoding=UTF-8&serverTimezone=UTC
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    initialization-mode: never

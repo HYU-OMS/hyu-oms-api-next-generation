@@ -24,16 +24,10 @@ import java.util.stream.Collectors
 
 @Service
 class GroupService(
-    private val userRepository: UserRepository,
     private val groupRepository: GroupRepository,
     private val memberRepository: MemberRepository
 ) {
   private val modelMapper: ModelMapper = ModelMapper()
-
-  private fun getUserFromContext(): User {
-    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
-    return userRepository.findByIdAndEnabledIsTrue(userId) ?: throw UserNotFoundException()
-  }
 
   private fun getGroupAndCheckIfCreator(user: User, groupId: Long): Group {
     val targetGroup = this.groupRepository.findByIdAndEnabledIsTrue(id = groupId) ?: throw GroupNotFoundException()
@@ -60,9 +54,8 @@ class GroupService(
   }
 
   @Transactional(readOnly = true)
-  fun getEnrolledList(page: Int = 0, size: Int = 20): GroupListResponseDto {
+  fun getEnrolledList(user: User, page: Int = 0, size: Int = 20): GroupListResponseDto {
     val pageRequest = PageRequest.of(page, size, Sort.by("id").ascending())
-    val user = this.getUserFromContext()
     val members = this.memberRepository.findAllByUserAndEnabledIsTrue(user)
     val pages = this.groupRepository.findDistinctByEnabledIsTrueAndMembersIn(members, pageRequest)
 
@@ -71,9 +64,8 @@ class GroupService(
 
   // TODO: 더 나은 방법은?
   @Transactional(readOnly = true)
-  fun getNotEnrolledAndRegisterAllowedList(page: Int = 0, size: Int = 20): GroupListResponseDto {
+  fun getNotEnrolledAndRegisterAllowedList(user: User, page: Int = 0, size: Int = 20): GroupListResponseDto {
     val pageRequest = PageRequest.of(page, size, Sort.by("id").ascending())
-    val user = this.getUserFromContext()
     val members = this.memberRepository.findAllByUserAndEnabledIsTrue(user)
     val enrolledGroups = this.groupRepository.findDistinctByEnabledIsTrueAndMembersIn(members)
 
@@ -86,9 +78,7 @@ class GroupService(
   }
 
   @Transactional(readOnly = false)
-  fun addNewGroup(name: String): GroupAddResponseDto {
-    val user = this.getUserFromContext()
-
+  fun addNewGroup(user: User, name: String): GroupAddResponseDto {
     // TODO: 그룹 생성 시간 제한 방법 도입 필요.
 
     val newGroup = Group(
@@ -108,8 +98,7 @@ class GroupService(
   }
 
   @Transactional(readOnly = false)
-  fun updateGroup(groupId: Long, name: String?, allowRegister: Boolean?): GroupUpdateAndDeleteResponseDto {
-    val user = this.getUserFromContext()
+  fun updateGroup(user: User, groupId: Long, name: String?, allowRegister: Boolean?): GroupUpdateAndDeleteResponseDto {
     val targetGroup = this.getGroupAndCheckIfCreator(user = user, groupId = groupId)
 
     if (name != null) {
@@ -126,9 +115,7 @@ class GroupService(
   }
 
   @Transactional(readOnly = false)
-  fun deleteGroup(groupId: Long): GroupUpdateAndDeleteResponseDto {
-    val user = this.getUserFromContext()
-
+  fun deleteGroup(user: User, groupId: Long): GroupUpdateAndDeleteResponseDto {
     val targetGroup = this.getGroupAndCheckIfCreator(user = user, groupId = groupId)
     this.memberRepository.deleteMembersByGroup(group = targetGroup)
 

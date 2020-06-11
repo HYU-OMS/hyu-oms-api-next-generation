@@ -6,6 +6,7 @@ import com.hyu_oms.restapi.v5.exceptions.PermissionDeniedException
 import com.hyu_oms.restapi.v5.exceptions.UserNotEnrolledToGroupException
 import com.hyu_oms.restapi.v5.responses.ClientError4XX
 import com.hyu_oms.restapi.v5.services.GroupService
+import com.hyu_oms.restapi.v5.services.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -13,6 +14,7 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/v5/group")
 class GroupController(
+    private val userService: UserService,
     private val groupService: GroupService
 ) {
   @GetMapping("/enrolled")
@@ -20,7 +22,11 @@ class GroupController(
       @RequestParam(defaultValue = "0") page: Int,
       @RequestParam(defaultValue = "20") size: Int
   ): GroupListResponseDto {
-    return this.groupService.getEnrolledList(page = page, size = size)
+    return this.groupService.getEnrolledList(
+        user = this.userService.getUserFromContext(),
+        page = page,
+        size = size
+    )
   }
 
   @GetMapping("/not-enrolled")
@@ -28,7 +34,11 @@ class GroupController(
       @RequestParam(defaultValue = "0") page: Int,
       @RequestParam(defaultValue = "20") size: Int
   ): GroupListResponseDto {
-    return this.groupService.getNotEnrolledAndRegisterAllowedList(page = page, size = size)
+    return this.groupService.getNotEnrolledAndRegisterAllowedList(
+        user = this.userService.getUserFromContext(),
+        page = page,
+        size = size
+    )
   }
 
   @PostMapping
@@ -36,7 +46,10 @@ class GroupController(
   fun addNewGroup(
       @RequestBody @Valid requestBody: GroupAddRequestDto
   ): GroupAddResponseDto {
-    return this.groupService.addNewGroup(name = requestBody.name!!)
+    return this.groupService.addNewGroup(
+        user = this.userService.getUserFromContext(),
+        name = requestBody.name!!
+    )
   }
 
   @PutMapping("/{groupId}")
@@ -45,6 +58,7 @@ class GroupController(
       @PathVariable groupId: Long
   ): GroupUpdateAndDeleteResponseDto {
     return this.groupService.updateGroup(
+        user = this.userService.getUserFromContext(),
         groupId = groupId,
         name = requestBody.name,
         allowRegister = requestBody.allowRegister
@@ -53,7 +67,10 @@ class GroupController(
 
   @DeleteMapping("/{groupId}")
   fun deleteGroup(@PathVariable groupId: Long): GroupUpdateAndDeleteResponseDto {
-    return this.groupService.deleteGroup(groupId = groupId)
+    return this.groupService.deleteGroup(
+        user = this.userService.getUserFromContext(),
+        groupId = groupId
+    )
   }
 
   @ExceptionHandler(value = [UserNotEnrolledToGroupException::class])

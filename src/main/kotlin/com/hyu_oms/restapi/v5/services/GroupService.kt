@@ -9,15 +9,12 @@ import com.hyu_oms.restapi.v5.entities.Member
 import com.hyu_oms.restapi.v5.entities.User
 import com.hyu_oms.restapi.v5.exceptions.GroupNotFoundException
 import com.hyu_oms.restapi.v5.exceptions.PermissionDeniedException
-import com.hyu_oms.restapi.v5.exceptions.UserNotFoundException
 import com.hyu_oms.restapi.v5.repositories.GroupRepository
 import com.hyu_oms.restapi.v5.repositories.MemberRepository
-import com.hyu_oms.restapi.v5.repositories.UserRepository
 import org.modelmapper.ModelMapper
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.stream.Collectors
@@ -98,7 +95,7 @@ class GroupService(
   }
 
   @Transactional(readOnly = false)
-  fun updateGroup(user: User, groupId: Long, name: String?, allowRegister: Boolean?): GroupUpdateAndDeleteResponseDto {
+  fun updateGroup(user: User, groupId: Long, name: String? = null, allowRegister: Boolean? = null): GroupUpdateAndDeleteResponseDto {
     val targetGroup = this.getGroupAndCheckIfCreator(user = user, groupId = groupId)
 
     if (name != null) {

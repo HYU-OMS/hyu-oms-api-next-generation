@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @DataJpaTest
@@ -33,103 +34,153 @@ class GroupServiceTest {
   @Autowired
   private lateinit var memberRepository: MemberRepository
 
+  private val initialUserIds = mutableListOf<Long>()
+  private val initialGroupIds = mutableListOf<Long>()
+  private val userIdToGroupIdMap = mutableMapOf<Long, MutableList<Long>>()
+
   @BeforeAll
   fun setUp() {
     this.groupService = GroupService(
+        userRepository = this.userRepository,
         groupRepository = this.groupRepository,
         memberRepository = this.memberRepository
     )
 
-    for (id in 1L..3L) {
-      val user = User(name = "TEST_USER_${id}")
+    for (itr in 1..3) {
+      val user = User(name = UUID.randomUUID().toString())
       this.userRepository.save(user)
+      this.initialUserIds.add(user.id)
 
-      val group = Group(name = "TEST_GROUP_${id}", creator = user)
+      val group = Group(name = UUID.randomUUID().toString(), creator = user)
       this.groupRepository.save(group)
+      this.initialGroupIds.add(group.id)
 
-      val member = Member(user = user, group = group, enabled = true, hasAdminPermission = true)
+      val member = Member(
+          user = user,
+          group = group,
+          enabled = true,
+          hasAdminPermission = true
+      )
       this.memberRepository.save(member)
+
+      this.userIdToGroupIdMap[user.id] = mutableListOf(group.id)
     }
   }
 
   @Test
   fun `Get enrolled groups`() {
-    val targetUserId = 1L
+    val targetUserId = this.initialUserIds.random()
 
-    val user = this.userRepository.getOne(targetUserId)
-    val response = this.groupService.getEnrolledList(user = user)
+    var currentPage = 0
+    val groupIds = mutableListOf<Long>()
+    while (true) {
+      val response = this.groupService.getEnrolledList(
+          userId = targetUserId,
+          page = currentPage
+      )
+      val currentGroupIds = response.contents.map { it.id }
+      if (currentGroupIds.isEmpty()) {
+        break
+      }
 
-    assertThat(response.totalElements, `is`(1L))
-    assertThat(response.totalPages, `is`(1))
+      groupIds.addAll(currentGroupIds)
+      currentPage += 1
+    }
 
-    val groupIds = response.contents.map { it.id }
-    assertThat(groupIds, hasItems(1L))
+    assertThat(
+        "Failed to get enrolled groups",
+        groupIds,
+        hasItems(*this.userIdToGroupIdMap[targetUserId]!!.toTypedArray())
+    )
   }
 
   @Test
-  fun `Get not enrolled and register allowed groups but there is no group with register allowed`() {
-    val targetUserId = 1L
+  fun `Get not enrolled and register allowed groups`() {
+    val targetUserId = this.initialUserIds.random()
 
-    val user = this.userRepository.getOne(targetUserId)
-    val response = this.groupService.getNotEnrolledAndRegisterAllowedList(user = user)
+    var currentPage = 0
+    val groupIds = mutableListOf<Long>()
+    while (true) {
+      val response = this.groupService.getNotEnrolledAndRegisterAllowedList(
+          userId = targetUserId,
+          page = currentPage
+      )
+      val currentGroupIds = response.contents.map { it.id }
+      if (currentGroupIds.isEmpty()) {
+        break
+      }
 
-    assertThat(response.totalElements, `is`(0L))
-    assertThat(response.totalPages, `is`(0))
+      groupIds.addAll(currentGroupIds)
+      currentPage += 1
+    }
 
-    val groupIds = response.contents.map { it.id }
-    assertThat(groupIds.size, `is`(0))
-  }
+    assertThat(
+        "There is no other register allowed groups but size is not 0.",
+        groupIds.size,
+        `is`(0)
+    )
 
-  @Test
-  fun `Get not enrolled and register allowed groups but there are one group with register allowed`() {
-    val targetUserId = 1L
-    val targetGroupId = 2L
+    val groups = this.groupRepository.findAll()
+    for (group in groups) {
+      group.allowRegister = true
+    }
+    this.groupRepository.saveAll(groups)
 
-    val group = this.groupRepository.getOne(targetGroupId)
-    group.allowRegister = true
-    this.groupRepository.save(group)
+    groupIds.clear()
+    currentPage = 0
 
-    val user = this.userRepository.getOne(targetUserId)
-    val response = this.groupService.getNotEnrolledAndRegisterAllowedList(user = user)
+    while (true) {
+      val response = this.groupService.getNotEnrolledAndRegisterAllowedList(
+          userId = targetUserId,
+          page = currentPage
+      )
+      val currentGroupIds = response.contents.map { it.id }
+      if (currentGroupIds.isEmpty()) {
+        break
+      }
 
-    assertThat(response.totalElements, `is`(1L))
-    assertThat(response.totalPages, `is`(1))
+      groupIds.addAll(currentGroupIds)
+      currentPage += 1
+    }
 
-    val groupIds = response.contents.map { it.id }
-    assertThat(groupIds, hasItems(targetGroupId))
+    assertThat(
+        "There is 2 register allowed groups but size is not 2.",
+        groupIds.size,
+        `is`(2)
+    )
   }
 
   @Test
   fun `Add new group`() {
-    val groupCount = this.groupRepository.count()
+    val targetUserId = this.initialUserIds.random()
 
-    val user = this.userRepository.getOne(1)
-    val newGroupName = "TEST_GROUP_${groupCount + 1}"
+    val newGroupName = UUID.randomUUID().toString()
 
-    val response = this.groupService.addNewGroup(user = user, name = newGroupName)
+    val response = this.groupService.addNewGroup(userId = targetUserId, name = newGroupName)
 
+    val targetUser = this.userRepository.getOne(targetUserId)
     val newGroup = this.groupRepository.getOne(response.newGroupId)
     assertThat(newGroup.name, `is`(newGroupName))
-    assertThat(newGroup.creator, `is`(user))
+    assertThat(newGroup.creator, `is`(targetUser))
     assertThat(newGroup.enabled, `is`(true))
     assertThat(newGroup.allowRegister, `is`(false))
 
-    val newMember = this.memberRepository.findByUserAndGroupAndEnabledIsTrue(user = user, group = newGroup)
+    val newMember = this.memberRepository.findByUserAndGroupAndEnabledIsTrue(user = targetUser, group = newGroup)
     assertThat(newMember, notNullValue())
     assertThat(newMember!!.hasAdminPermission, `is`(true))
   }
 
   @Test
   fun `Update with creator`() {
-    val targetGroupId = 1L
+    val targetGroupId = this.initialGroupIds.random()
 
     val group = this.groupRepository.getOne(targetGroupId)
     val creator = group.creator
 
-    val updatedGroupName = "UPDATED_GROUP_${group.id}"
+    val updatedGroupName = UUID.randomUUID().toString()
     val response = this.groupService.updateGroup(
-        user = creator,
-        groupId = group.id,
+        userId = creator.id,
+        groupId = targetGroupId,
         name = updatedGroupName,
         allowRegister = true
     )
@@ -142,30 +193,30 @@ class GroupServiceTest {
 
   @Test
   fun `Update with non-creator`() {
-    val targetGroupId = 1L
-    val targetUserId = 2L
+    val targetGroupId = this.initialGroupIds.random()
+    val targetGroup = this.groupRepository.getOne(targetGroupId)
 
-    val group = this.groupRepository.getOne(targetGroupId)
-    val user = this.userRepository.getOne(targetUserId)
+    var targetUserId: Long
+    do {
+      targetUserId = this.initialUserIds.random()
+    } while (targetGroup.creator.id == targetUserId)
 
     assertThrows<PermissionDeniedException> {
       this.groupService.updateGroup(
-          user = user,
-          groupId = group.id
+          userId = targetUserId,
+          groupId = targetGroupId
       )
     }
   }
 
   @Test
   fun `Attempt to update non-existing group`() {
-    val targetUserId = 1L
-    val targetGroupId = 999L
-
-    val user = this.userRepository.getOne(targetUserId)
+    val targetUserId = this.initialUserIds.random()
+    val targetGroupId = 0L
 
     assertThrows<GroupNotFoundException> {
       this.groupService.updateGroup(
-          user = user,
+          userId = targetUserId,
           groupId = targetGroupId
       )
     }
@@ -173,12 +224,12 @@ class GroupServiceTest {
 
   @Test
   fun `Delete with creator`() {
-    val targetGroupId = 1L
+    val targetGroupId = this.initialGroupIds.random()
 
     val group = this.groupRepository.getOne(targetGroupId)
     val creator = group.creator
 
-    val response = this.groupService.deleteGroup(user = creator, groupId = group.id)
+    val response = this.groupService.deleteGroup(userId = creator.id, groupId = group.id)
 
     val deletedGroup = this.groupRepository.getOne(response.groupId)
     assertThat(deletedGroup.enabled, `is`(false))
@@ -187,30 +238,30 @@ class GroupServiceTest {
 
   @Test
   fun `Delete with non-creator`() {
-    val targetGroupId = 1L
-    val targetUserId = 2L
+    val targetGroupId = this.initialGroupIds.random()
+    val targetGroup = this.groupRepository.getOne(targetGroupId)
 
-    val group = this.groupRepository.getOne(targetGroupId)
-    val user = this.userRepository.getOne(targetUserId)
+    var targetUserId: Long
+    do {
+      targetUserId = this.initialUserIds.random()
+    } while (targetGroup.creator.id == targetUserId)
 
     assertThrows<PermissionDeniedException> {
       this.groupService.deleteGroup(
-          user = user,
-          groupId = group.id
+          userId = targetUserId,
+          groupId = targetGroupId
       )
     }
   }
 
   @Test
   fun `Attempt to delete non-existing group`() {
-    val targetUserId = 1L
-    val targetGroupId = 999L
-
-    val user = this.userRepository.getOne(targetUserId)
+    val targetUserId = this.initialUserIds.random()
+    val targetGroupId = 0L
 
     assertThrows<GroupNotFoundException> {
       this.groupService.deleteGroup(
-          user = user,
+          userId = targetUserId,
           groupId = targetGroupId
       )
     }

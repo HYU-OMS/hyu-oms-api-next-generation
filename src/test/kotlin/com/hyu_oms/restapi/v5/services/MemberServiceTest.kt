@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.util.*
 import kotlin.random.Random
 
 @ExtendWith(SpringExtension::class)
@@ -34,6 +35,10 @@ class MemberServiceTest {
   @Autowired
   private lateinit var memberRepository: MemberRepository
 
+  private val enrolledUserIds = mutableListOf<Long>()
+  private val notEnrolledUserIds = mutableListOf<Long>()
+  private val initialGroupIds = mutableListOf<Long>()
+
   @BeforeAll
   fun setUp() {
     this.memberService = MemberService(
@@ -42,12 +47,14 @@ class MemberServiceTest {
         memberRepository = this.memberRepository
     )
 
-    for (id1 in 1L..5L) {
-      val user = User(name = "TEST_USER_${id1}")
+    for (itr in 1..5) {
+      val user = User(name = UUID.randomUUID().toString())
       this.userRepository.save(user)
+      this.enrolledUserIds.add(user.id)
 
-      val group = Group(name = "TEST_GROUP_${id1}", creator = user)
+      val group = Group(name = UUID.randomUUID().toString(), creator = user)
       this.groupRepository.save(group)
+      this.initialGroupIds.add(group.id)
     }
 
     val users = this.userRepository.findAll()
@@ -64,9 +71,10 @@ class MemberServiceTest {
       }
     }
 
-    for (id in 6L..9L) {
-      val user = User(name = "TEST_USER_${id}")
+    for (itr in 1..3) {
+      val user = User(name = UUID.randomUUID().toString())
       this.userRepository.save(user)
+      this.notEnrolledUserIds.add(user.id)
     }
   }
 
@@ -93,14 +101,13 @@ class MemberServiceTest {
 
   @Test
   fun `Add new member`() {
-    // User ID 6 to 9 는 어느 그룹에도 속해 있지 않음.
-    for (userId in 6L..9L) {
-      for (groupId in 1L..5L) {
-        val newMemberId = this.memberService.addMember(userId = 6, groupId = 1)
+    for (userId in this.notEnrolledUserIds) {
+      for (groupId in this.initialGroupIds) {
+        val newMemberId = this.memberService.addMember(userId = userId, groupId = groupId)
 
         val member = this.memberRepository.getOne(newMemberId)
-        assertThat("Member's userId mismatch.", member.user.id, `is`(6L))
-        assertThat("Member's groupId mismatch.", member.group.id, `is`(1L))
+        assertThat("Member's userId mismatch.", member.user.id, `is`(userId))
+        assertThat("Member's groupId mismatch.", member.group.id, `is`(groupId))
         assertThat("Member's enabled must be false.", member.enabled, `is`(false))
         assertThat("Member's admin permission must be false.", member.hasAdminPermission, `is`(false))
       }
@@ -147,15 +154,18 @@ class MemberServiceTest {
       }
     }
 
-    val userWithId6 = this.userRepository.getOne(6)
-    val groupWithId1 = this.groupRepository.getOne(1)
-    val existingMember = groupWithId1.members.last()
+    val notEnrolledYetUser = this.userRepository.getOne(this.notEnrolledUserIds.random())
+    val existingGroup = this.groupRepository.getOne(this.initialGroupIds.random())
+    var existingMember: Member
+    do {
+      existingMember = existingGroup.members.random()
+    } while (existingGroup.creator == existingMember.user)
 
-    val newMember = Member(user = userWithId6, group = groupWithId1, enabled = false)
+    val newMember = Member(user = notEnrolledYetUser, group = existingGroup, enabled = false)
     this.memberRepository.save(newMember)
-    assertThrows<PermissionDeniedException> {
+    assertThrows<PermissionDeniedException>("Attempt to update other member with disabled member.") {
       this.memberService.updateMember(
-          userId = userWithId6.id,
+          userId = notEnrolledYetUser.id,
           memberId = existingMember.id,
           enabled = false
       )
@@ -163,9 +173,9 @@ class MemberServiceTest {
 
     newMember.enabled = true
     this.memberRepository.save(newMember)
-    assertThrows<PermissionDeniedException> {
+    assertThrows<PermissionDeniedException>("Attempt to update other member with non-admin member.") {
       this.memberService.updateMember(
-          userId = userWithId6.id,
+          userId = notEnrolledYetUser.id,
           memberId = existingMember.id,
           enabled = false
       )
@@ -174,7 +184,7 @@ class MemberServiceTest {
     newMember.hasAdminPermission = true
     this.memberRepository.save(newMember)
     this.memberService.updateMember(
-        userId = userWithId6.id,
+        userId = notEnrolledYetUser.id,
         memberId = existingMember.id,
         enabled = false
     )
@@ -182,11 +192,6 @@ class MemberServiceTest {
     val updatedMember = this.memberRepository.getOne(existingMember.id)
     assertThat("'enabled' must be 'false'", updatedMember.enabled, `is`(false))
   }
-
-//  @Test
-//  fun `Delete member`() {
-//
-//  }
 
   @AfterAll
   fun tearDown() {

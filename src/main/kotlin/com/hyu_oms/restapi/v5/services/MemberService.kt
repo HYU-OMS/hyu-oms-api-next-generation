@@ -92,28 +92,4 @@ class MemberService(
 
     this.memberRepository.save(targetMember)
   }
-
-//  @Transactional(readOnly = false)
-//  fun deleteMember(
-//      userId: Long,
-//      memberId: Long
-//  ) {
-//    val user = this.userRepository.findByIdAndEnabledIsTrue(id = userId) ?: throw UserNotFoundException()
-//    val targetMember = this.memberRepository.findByIdOrNull(memberId) ?: throw MemberNotFoundException()
-//    val group = targetMember.group
-//
-//    if(targetMember.user == group.creator) {
-//      throw CreatorModifyRequestedException()
-//    }
-//
-//    val memberForAdminCheck = this.memberRepository.findByUserAndGroupAndEnabledIsTrue(
-//        user = user,
-//        group = group
-//    )
-//    if(memberForAdminCheck == null || !memberForAdminCheck.hasAdminPermission) {
-//      throw PermissionDeniedException()
-//    }
-//
-//    this.memberRepository.delete(targetMember)
-//  }
 }

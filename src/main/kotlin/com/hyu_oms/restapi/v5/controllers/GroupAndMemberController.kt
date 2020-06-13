@@ -12,7 +12,6 @@ import com.hyu_oms.restapi.v5.exceptions.UserNotEnrolledToGroupException
 import com.hyu_oms.restapi.v5.responses.ClientError4XX
 import com.hyu_oms.restapi.v5.services.GroupService
 import com.hyu_oms.restapi.v5.services.MemberService
-import com.hyu_oms.restapi.v5.services.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
@@ -21,7 +20,6 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/v5/group")
 class GroupAndMemberController(
-    private val userService: UserService,
     private val groupService: GroupService,
     private val memberService: MemberService
 ) {
@@ -30,8 +28,9 @@ class GroupAndMemberController(
       @RequestParam(defaultValue = "0") page: Int,
       @RequestParam(defaultValue = "20") size: Int
   ): GroupListResponseDto {
+    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
     return this.groupService.getEnrolledList(
-        user = this.userService.getUserFromContext(),
+        userId = userId,
         page = page,
         size = size
     )
@@ -42,8 +41,9 @@ class GroupAndMemberController(
       @RequestParam(defaultValue = "0") page: Int,
       @RequestParam(defaultValue = "20") size: Int
   ): GroupListResponseDto {
+    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
     return this.groupService.getNotEnrolledAndRegisterAllowedList(
-        user = this.userService.getUserFromContext(),
+        userId = userId,
         page = page,
         size = size
     )
@@ -63,8 +63,9 @@ class GroupAndMemberController(
   fun addNewGroup(
       @RequestBody @Valid requestBody: GroupAddRequestDto
   ): GroupAddResponseDto {
+    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
     return this.groupService.addNewGroup(
-        user = this.userService.getUserFromContext(),
+        userId = userId,
         name = requestBody.name!!
     )
   }
@@ -86,8 +87,9 @@ class GroupAndMemberController(
       @RequestBody @Valid requestBody: GroupUpdateRequestDto,
       @PathVariable groupId: Long
   ): GroupUpdateAndDeleteResponseDto {
+    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
     return this.groupService.updateGroup(
-        user = this.userService.getUserFromContext(),
+        userId = userId,
         groupId = groupId,
         name = requestBody.name,
         allowRegister = requestBody.allowRegister
@@ -113,25 +115,12 @@ class GroupAndMemberController(
 
   @DeleteMapping("/{groupId}")
   fun deleteGroup(@PathVariable groupId: Long): GroupUpdateAndDeleteResponseDto {
+    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
     return this.groupService.deleteGroup(
-        user = this.userService.getUserFromContext(),
+        userId = userId,
         groupId = groupId
     )
   }
-
-//  @DeleteMapping("/{groupId}/member/{memberId}")
-//  fun deleteMember(
-//      @PathVariable groupId: Long,
-//      @PathVariable memberId: Long
-//  ): MemberUpdateAndDeleteResponseDto {
-//    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
-//    this.memberService.deleteMember(
-//        userId = userId,
-//        memberId = memberId
-//    )
-//
-//    return MemberUpdateAndDeleteResponseDto(memberId = memberId)
-//  }
 
   @ExceptionHandler(value = [UserNotEnrolledToGroupException::class])
   @ResponseStatus(code = HttpStatus.FORBIDDEN)

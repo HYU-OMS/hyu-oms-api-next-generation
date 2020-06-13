@@ -8,7 +8,7 @@ data class MemberListItemDto(
     var enabled: Boolean,
     var hasAdminPermission: Boolean
 ) {
-  constructor(): this(
+  constructor() : this(
       0,
       UserListItemDto(0, ""),
       true,

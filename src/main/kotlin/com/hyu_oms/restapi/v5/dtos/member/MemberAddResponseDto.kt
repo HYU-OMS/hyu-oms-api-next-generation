@@ -6,5 +6,5 @@ data class MemberAddResponseDto(
     @JsonProperty("new_member_id")
     var newMemberId: Long
 ) {
-  constructor(): this(0)
+  constructor() : this(0)
 }

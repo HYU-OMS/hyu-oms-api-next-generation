@@ -6,5 +6,5 @@ data class MemberUpdateAndDeleteResponseDto(
     @JsonProperty("member_id")
     var memberId: Long
 ) {
-  constructor(): this(0)
+  constructor() : this(0)
 }

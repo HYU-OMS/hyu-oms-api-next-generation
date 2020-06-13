@@ -87,6 +87,7 @@ class GroupService(
     val newMember = Member(
         user = user,
         group = newGroup,
+        enabled = true,
         hasAdminPermission = true
     )
     this.memberRepository.save(newMember)

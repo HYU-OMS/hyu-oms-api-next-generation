@@ -47,7 +47,7 @@ class GroupServiceTest {
       val group = Group(name = "TEST_GROUP_${id}", creator = user)
       this.groupRepository.save(group)
 
-      val member = Member(user = user, group = group, hasAdminPermission = true)
+      val member = Member(user = user, group = group, enabled = true, hasAdminPermission = true)
       this.memberRepository.save(member)
     }
   }

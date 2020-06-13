@@ -43,7 +43,7 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-test") {
     exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
   }
-  implementation(group = "com.h2database", name = "h2")
+  testImplementation(group = "com.h2database", name = "h2")
 }
 
 tasks.withType<Test> {

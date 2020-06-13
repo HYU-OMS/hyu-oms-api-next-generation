@@ -5,6 +5,7 @@ import com.hyu_oms.restapi.v5.dtos.member.MemberAddResponseDto
 import com.hyu_oms.restapi.v5.dtos.member.MemberListItemDto
 import com.hyu_oms.restapi.v5.dtos.member.MemberUpdateAndDeleteResponseDto
 import com.hyu_oms.restapi.v5.dtos.member.MemberUpdateRequestDto
+import com.hyu_oms.restapi.v5.exceptions.CreatorModifyRequestedException
 import com.hyu_oms.restapi.v5.exceptions.GroupNotFoundException
 import com.hyu_oms.restapi.v5.exceptions.PermissionDeniedException
 import com.hyu_oms.restapi.v5.exceptions.UserNotEnrolledToGroupException
@@ -118,19 +119,19 @@ class GroupAndMemberController(
     )
   }
 
-  @DeleteMapping("/{groupId}/member/{memberId}")
-  fun deleteMember(
-      @PathVariable groupId: Long,
-      @PathVariable memberId: Long
-  ): MemberUpdateAndDeleteResponseDto {
-    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
-    this.memberService.deleteMember(
-        userId = userId,
-        memberId = memberId
-    )
-
-    return MemberUpdateAndDeleteResponseDto(memberId = memberId)
-  }
+//  @DeleteMapping("/{groupId}/member/{memberId}")
+//  fun deleteMember(
+//      @PathVariable groupId: Long,
+//      @PathVariable memberId: Long
+//  ): MemberUpdateAndDeleteResponseDto {
+//    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
+//    this.memberService.deleteMember(
+//        userId = userId,
+//        memberId = memberId
+//    )
+//
+//    return MemberUpdateAndDeleteResponseDto(memberId = memberId)
+//  }
 
   @ExceptionHandler(value = [UserNotEnrolledToGroupException::class])
   @ResponseStatus(code = HttpStatus.FORBIDDEN)
@@ -142,6 +143,12 @@ class GroupAndMemberController(
   @ResponseStatus(code = HttpStatus.NOT_FOUND)
   fun groupNotFoundException(e: GroupNotFoundException): MutableMap<String, Any?> {
     return ClientError4XX.GROUP_NOT_FOUND_ERROR
+  }
+
+  @ExceptionHandler(value = [CreatorModifyRequestedException::class])
+  @ResponseStatus(code = HttpStatus.FORBIDDEN)
+  fun creatorModifyRequestedException(e: CreatorModifyRequestedException): MutableMap<String, Any?> {
+    return ClientError4XX.CREATOR_MODIFY_REQUESTED_ERROR
   }
 
   @ExceptionHandler(value = [PermissionDeniedException::class])

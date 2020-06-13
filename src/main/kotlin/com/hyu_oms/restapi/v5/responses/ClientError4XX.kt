@@ -79,5 +79,10 @@ class ClientError4XX {
         "message" to "Requested queue item is already delivered.",
         "data" to null
     )
+    val CREATOR_MODIFY_REQUESTED_ERROR = mutableMapOf<String, Any?>(
+        "code" to "F015",
+        "message" to "Requested member must not be modified since this member is a creator of this group.",
+        "data" to null
+    )
   }
 }

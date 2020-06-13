@@ -21,7 +21,7 @@ data class Member(
     @JoinColumn(name = "group_id", nullable = false)
     var group: Group,
 
-    var enabled: Boolean = true,
+    var enabled: Boolean,
 
     @Column(name = "has_admin_permission")
     var hasAdminPermission: Boolean = false,

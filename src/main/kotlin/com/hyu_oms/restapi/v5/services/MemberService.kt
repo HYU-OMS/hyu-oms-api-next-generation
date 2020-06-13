@@ -2,17 +2,12 @@ package com.hyu_oms.restapi.v5.services
 
 import com.hyu_oms.restapi.v5.dtos.member.MemberListItemDto
 import com.hyu_oms.restapi.v5.entities.Member
-import com.hyu_oms.restapi.v5.entities.User
-import com.hyu_oms.restapi.v5.exceptions.GroupNotFoundException
-import com.hyu_oms.restapi.v5.exceptions.MemberNotFoundException
-import com.hyu_oms.restapi.v5.exceptions.PermissionDeniedException
-import com.hyu_oms.restapi.v5.exceptions.UserNotFoundException
+import com.hyu_oms.restapi.v5.exceptions.*
 import com.hyu_oms.restapi.v5.repositories.GroupRepository
 import com.hyu_oms.restapi.v5.repositories.MemberRepository
 import com.hyu_oms.restapi.v5.repositories.UserRepository
 import org.modelmapper.ModelMapper
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.stream.Collectors
@@ -75,42 +70,50 @@ class MemberService(
     val targetMember = this.memberRepository.findByIdOrNull(memberId) ?: throw MemberNotFoundException()
     val group = targetMember.group
 
+    if (targetMember.user == group.creator) {
+      throw CreatorModifyRequestedException()
+    }
+
     val memberForAdminCheck = this.memberRepository.findByUserAndGroupAndEnabledIsTrue(
         user = user,
         group = group
     )
-    if(memberForAdminCheck == null || !memberForAdminCheck.hasAdminPermission) {
+    if (memberForAdminCheck == null || !memberForAdminCheck.hasAdminPermission) {
       throw PermissionDeniedException()
     }
 
-    if(enabled != null) {
+    if (enabled != null) {
       targetMember.enabled = enabled
     }
 
-    if(hasAdminPermission != null) {
+    if (hasAdminPermission != null) {
       targetMember.hasAdminPermission = hasAdminPermission
     }
 
     this.memberRepository.save(targetMember)
   }
 
-  @Transactional(readOnly = false)
-  fun deleteMember(
-      userId: Long,
-      memberId: Long
-  ) {
-    val user = this.userRepository.findByIdAndEnabledIsTrue(id = userId) ?: throw UserNotFoundException()
-    val targetMember = this.memberRepository.findByIdOrNull(memberId) ?: throw MemberNotFoundException()
-    val group = targetMember.group
-
-    val memberForAdminCheck = this.memberRepository.findByUserAndGroupAndEnabledIsTrue(
-        user = user,
-        group = group
-    )
-    if(memberForAdminCheck == null || !memberForAdminCheck.hasAdminPermission) {
-      throw PermissionDeniedException()
-    }
-
-    this.memberRepository.delete(targetMember)
-  }
+//  @Transactional(readOnly = false)
+//  fun deleteMember(
+//      userId: Long,
+//      memberId: Long
+//  ) {
+//    val user = this.userRepository.findByIdAndEnabledIsTrue(id = userId) ?: throw UserNotFoundException()
+//    val targetMember = this.memberRepository.findByIdOrNull(memberId) ?: throw MemberNotFoundException()
+//    val group = targetMember.group
+//
+//    if(targetMember.user == group.creator) {
+//      throw CreatorModifyRequestedException()
+//    }
+//
+//    val memberForAdminCheck = this.memberRepository.findByUserAndGroupAndEnabledIsTrue(
+//        user = user,
+//        group = group
+//    )
+//    if(memberForAdminCheck == null || !memberForAdminCheck.hasAdminPermission) {
+//      throw PermissionDeniedException()
+//    }
+//
+//    this.memberRepository.delete(targetMember)
+//  }
 }

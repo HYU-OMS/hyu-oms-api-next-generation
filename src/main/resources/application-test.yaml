@@ -1,0 +1,12 @@
+spring:
+  profiles: test
+  jpa:
+    show-sql: true
+    database: h2
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+    open-in-view: false
+  datasource:
+    driver-class-name: org.h2.Driver

@@ -1,10 +1,7 @@
 package com.hyu_oms.restapi.v5.services
 
-import com.hyu_oms.restapi.v5.dtos.menu.MenuAddResponseDto
 import com.hyu_oms.restapi.v5.dtos.menu.MenuListItemDto
-import com.hyu_oms.restapi.v5.dtos.menu.MenuUpdateResponseDto
 import com.hyu_oms.restapi.v5.entities.Menu
-import com.hyu_oms.restapi.v5.entities.User
 import com.hyu_oms.restapi.v5.exceptions.GroupNotFoundException
 import com.hyu_oms.restapi.v5.exceptions.MenuNotFoundException
 import com.hyu_oms.restapi.v5.exceptions.PermissionDeniedException
@@ -15,7 +12,6 @@ import com.hyu_oms.restapi.v5.repositories.MenuRepository
 import com.hyu_oms.restapi.v5.repositories.UserRepository
 import org.modelmapper.ModelMapper
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.stream.Collectors
@@ -29,14 +25,9 @@ class MenuService(
 ) {
   private val modelMapper: ModelMapper = ModelMapper()
 
-  private fun getUserFromContext(): User {
-    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
-    return userRepository.findByIdAndEnabledIsTrue(userId) ?: throw UserNotFoundException()
-  }
-
   @Transactional(readOnly = true)
-  fun getMenuList(groupId: Long): List<MenuListItemDto> {
-    val user = this.getUserFromContext()
+  fun getMenuList(userId: Long, groupId: Long): List<MenuListItemDto> {
+    val user = this.userRepository.findByIdAndEnabledIsTrue(userId) ?: throw UserNotFoundException()
     val group = this.groupRepository.findByIdAndEnabledIsTrue(id = groupId) ?: throw GroupNotFoundException()
     val member = this.memberRepository.findByUserAndGroupAndEnabledIsTrue(
         user = user,
@@ -59,8 +50,8 @@ class MenuService(
   }
 
   @Transactional(readOnly = false)
-  fun addMenu(groupId: Long, name: String, price: Int): MenuAddResponseDto {
-    val user = getUserFromContext()
+  fun addMenu(userId: Long, groupId: Long, name: String, price: Int): Long {
+    val user = this.userRepository.findByIdAndEnabledIsTrue(userId) ?: throw UserNotFoundException()
     val group = this.groupRepository.findByIdAndEnabledIsTrue(id = groupId) ?: throw GroupNotFoundException()
     val member = this.memberRepository.findByUserAndGroupAndEnabledIsTrue(user = user, group = group)
     if (member == null || !member.hasAdminPermission) {
@@ -74,12 +65,12 @@ class MenuService(
     )
     this.menuRepository.save(newMenu)
 
-    return MenuAddResponseDto(newMenuId = newMenu.id)
+    return newMenu.id
   }
 
   @Transactional(readOnly = false)
-  fun updateMenu(menuId: Long, price: Int?, enabled: Boolean?): MenuUpdateResponseDto {
-    val user = getUserFromContext()
+  fun updateMenu(userId: Long, menuId: Long, price: Int?, enabled: Boolean?) {
+    val user = this.userRepository.findByIdAndEnabledIsTrue(userId) ?: throw UserNotFoundException()
     val menu = this.menuRepository.findByIdOrNull(id = menuId) ?: throw MenuNotFoundException()
     val member = this.memberRepository.findByUserAndGroupAndEnabledIsTrue(user = user, group = menu.group)
     if (member == null || !member.hasAdminPermission) {
@@ -95,7 +86,5 @@ class MenuService(
     }
 
     this.menuRepository.save(menu)
-
-    return MenuUpdateResponseDto(menuId = menuId)
   }
 }

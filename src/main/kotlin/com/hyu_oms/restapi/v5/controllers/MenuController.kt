@@ -7,6 +7,7 @@ import com.hyu_oms.restapi.v5.exceptions.PermissionDeniedException
 import com.hyu_oms.restapi.v5.responses.ClientError4XX
 import com.hyu_oms.restapi.v5.services.MenuService
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -19,18 +20,23 @@ class MenuController(
   fun getMenuList(
       @RequestParam(name = "group_id") groupId: Long
   ): List<MenuListItemDto> {
-    return this.menuService.getMenuList(groupId = groupId)
+    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
+    return this.menuService.getMenuList(userId = userId, groupId = groupId)
   }
 
   @PostMapping
   fun addMenu(
       @RequestBody @Valid requestBody: MenuAddRequestDto
   ): MenuAddResponseDto {
-    return this.menuService.addMenu(
+    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
+    val newMenuId = this.menuService.addMenu(
+        userId = userId,
         groupId = requestBody.groupId!!,
         name = requestBody.name!!,
         price = requestBody.price!!
     )
+
+    return MenuAddResponseDto(newMenuId = newMenuId)
   }
 
   @PutMapping("/{menuId}")
@@ -38,11 +44,15 @@ class MenuController(
       @PathVariable menuId: Long,
       @RequestBody @Valid requestBody: MenuUpdateRequestDto
   ): MenuUpdateResponseDto {
-    return this.menuService.updateMenu(
+    val userId = SecurityContextHolder.getContext().authentication.principal.toString().toLong()
+    this.menuService.updateMenu(
+        userId = userId,
         menuId = menuId,
         price = requestBody.price,
         enabled = requestBody.enabled
     )
+
+    return MenuUpdateResponseDto(menuId = menuId)
   }
 
   @ExceptionHandler(value = [GroupNotFoundException::class])
